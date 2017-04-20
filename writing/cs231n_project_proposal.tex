@@ -1,0 +1,73 @@
+\documentclass[12pt]{article}
+
+% for lettered subsections
+\renewcommand\thesubsection{\alph{subsection}}
+% for roman numeralled subsubsections
+\renewcommand\thesubsubsection{\roman{subsubsection}}
+
+% for margins
+\usepackage[margin=0.75in]{geometry}
+
+% for figures...
+\usepackage{graphicx}
+
+% for split environment and cases
+\usepackage{amsmath} 
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+% for \FloatBarrier to keep figs in sections
+\usepackage[section]{placeins}
+
+% for tables
+\usepackage{tabularx, caption}
+
+% scientific notation, units
+\usepackage{siunitx}
+
+% Python Code
+\usepackage{alltt, listings, textcomp, color, verbatim}
+
+\definecolor{gray}{rgb}{0.4,0.4,0.4}
+\definecolor{dkgreen}{rgb}{0,0.4,0}
+\definecolor{mylilas}{RGB}{170,55,241}
+\definecolor{dkblue}{rgb}{0.0,0.0,0.4}
+
+\lstdefinestyle{python}{
+	language=Python,                        % choose the language of the code
+	basicstyle=\ttfamily\footnotesize,   % the size of the fonts that are used for the code
+	tabsize=4,                           % sets default tabsize to 2 spaces
+	showstringspaces=false,              % show spaces adding particular underscores
+	showtabs=false,                      % show tabs within strings adding particular underscores
+	keywordstyle=\color{blue},           % keyword style
+	identifierstyle=\color{black},       % identifier style
+	emphstyle=\color{black}\bf,          % emphasis style
+	commentstyle=\color{dkgreen}\slshape,% comment style
+	stringstyle=\color{mylilas},         % string literal style
+	aboveskip=\baselineskip,             % skip space when starting code environment
+	xleftmargin=10pt, xrightmargin=10pt, % code margins
+	frame=lines,                         % adds a frame around the code
+	numbers=none,                        % where to put the line-numbers
+	numberstyle=\tiny,                   % the size of the fonts that are used for the line-numbers
+	numbersep=10pt,                      % how far the line-numbers are from the code
+}
+\lstnewenvironment{python}{\lstset{style=python}}{}
+\newcommand{\inputpython}[1]{\lstinputlisting[style=python]{#1}}
+
+\title{CS231n Project Proposal}  
+\author{Brian Rohr\\Vishal Subbiah\\Brent Lunghino}
+
+\begin{document}
+
+\maketitle	
+
+Applying convolutional neural networks to label atmospheric conditions and landcover on satellite images of the Amazon rainforest. We will train our convnet to detect the cloudiness of an image, and what types of landuse are in the image, for example primary forest, water, or agriculture. This is an important challenge because it will improve automated classification of large satellite image datasets. Classified satellite data of the rainforest can be applied to compute deforestation rates, detect illegal mining/deforestation, and differentiate between natural and human-caused deforestation.
+Data will be provided by Planet for a Kaggle competition. The dataset is 150,000 images that are 256x256 pixels and 4 bands of color (RGB + near-infrared). Each image is 947 m x 947 m for a resolution of 3.7 m per pixel. The dataset covers 30 million hectares of Amazon rainforest. 
+
+We will train a convnet and use an F-score as our loss function
+
+\begin{equation} \label{eq:F_score}
+(1 + \beta^2) \frac{pr}{\beta^2 p+r}\ \ \mathrm{where}\ \ p = \frac{tp}{tp+fp},\ \ r = \frac{tp}{tp+fn},\ \beta = 2.
+\end{equation}
+
+\end{document}
