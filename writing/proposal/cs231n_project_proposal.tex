@@ -67,7 +67,13 @@ Data will be provided by Planet for a Kaggle competition. The dataset is 150,000
 We will train a convnet and use an F-score as our loss function
 
 \begin{equation} \label{eq:F_score}
-(1 + \beta^2) \frac{pr}{\beta^2 p+r}\ \ \mathrm{where}\ \ p = \frac{tp}{tp+fp},\ \ r = \frac{tp}{tp+fn},\ \beta = 2.
+F_{\beta}=(1 + \beta^2) \frac{pr}{\beta^2 p+r}\ \ \mathrm{where}\ \ p = \frac{tp}{tp+fp},\ \ r = \frac{tp}{tp+fn},\ \beta = 1 (F_1 score).
 \end{equation}
+tp - true positive \\
+fp - false positive \\
+fn - false negative \\
+p - precision \\
+r - recall\\
+
 
 \end{document}
