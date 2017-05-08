@@ -1,3 +1,5 @@
 *.gz
+data/
+.env
 *.aux
 *.log
