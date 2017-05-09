@@ -8,7 +8,7 @@ from torch import nn
 
 
 def train(loader_train, model, loss_fn, optimizer, dtype, 
-          num_epochs=1, print_every=1e6):
+          num_epochs=1, print_every=1e5):
     """
     train `model` on data from `loader_train`
 

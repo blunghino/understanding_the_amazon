@@ -1,4 +1,5 @@
 *.gz
+__pycache__
 data/
 .env
 *.aux
