@@ -19,6 +19,8 @@ def train(loader_train, model, loss_fn, optimizer, dtype,
     `optimizer` subclassed from torch.optim.Optimizer
     `dtype` data type for variables 
         eg torch.FloatTensor (cpu) or torch.cuda.FloatTensor (gpu)
+
+    from cs231n assignment 2
     """
     for epoch in range(num_epochs):
         print('Starting epoch %d / %d' % (epoch + 1, num_epochs))
@@ -44,6 +46,8 @@ def check_accuracy(model, loader, dtype):
     `loader` is a torch.dataset.DataLoader for validation data 
     `dtype` data type for variables 
         eg torch.FloatTensor (cpu) or torch.cuda.FloatTensor (gpu)
+
+    from cs231n assignment 2
     """
     if loader.dataset.train:
         print('Checking accuracy on validation set')
@@ -65,6 +69,8 @@ def check_accuracy(model, loader, dtype):
 class Flatten(nn.Module):
     """
     flatten a 4d tensor into a 2d tensor
+
+    from cs231n assignment 2
     """
     def forward(self, x):
         N, C, H, W = x.size() # read in N, C, H, W
