@@ -1,6 +1,6 @@
 *.gz
 __pycache__
-data/
+data/*
 .env
 *.aux
 *.log
