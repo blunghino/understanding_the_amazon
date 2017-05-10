@@ -14,11 +14,12 @@ class AmazonDataset(Dataset):
     """
     class to conform data to pytorch API
     """
-    def __init__(self, csv_path, img_path, img_ext='.jpg'):
+    def __init__(self, csv_path, img_path, dtype, img_ext='.jpg'):
     
         self.img_path = img_path
         self.img_ext = img_ext
-
+        self.dtype = dtype
+        
         df = pd.read_csv(csv_path)
         
         self.mlb = MultiLabelBinarizer()
@@ -27,6 +28,7 @@ class AmazonDataset(Dataset):
         ## the paths to the images
         self.X_train = df['image_name']
         self.y_train = self.mlb.fit_transform(df['tags'].str.split()).astype(np.float32)
+        # self.y_train = torch.from_numpy(self.y_train).type(dtype)
 
     def __getitem__(self, index):
         """
@@ -35,7 +37,8 @@ class AmazonDataset(Dataset):
         img_str = self.X_train[index] + self.img_ext
         img = Image.open(os.path.join(self.img_path, img_str))  
         img = self.transforms(img)
-        label = torch.from_numpy(self.y_train[index])
+        label = torch.from_numpy(self.y_train[index]).type(self.dtype)
+        # label = self.y_train(index)
         return img, label
 
     def __len__(self):
@@ -45,7 +48,8 @@ class AmazonDataset(Dataset):
 if __name__ == '__main__':
     csv_path = 'data/train.csv'
     img_path = 'data/train-jpg'
-    training_dataset = AmazonDataset(csv_path, img_path)
+    dtype = torch.FloatTensor
+    training_dataset = AmazonDataset(csv_path, img_path, dtype)
     train_loader = DataLoader(
         training_dataset,
         batch_size=256,

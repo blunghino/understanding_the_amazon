@@ -15,7 +15,7 @@ if __name__ == '__main__':
     dtype = torch.FloatTensor
     csv_path = '../../data/train.csv'
     img_path = '../../data/train-jpg'
-    training_dataset = AmazonDataset(csv_path, img_path)
+    training_dataset = AmazonDataset(csv_path, img_path, dtype)
     ## loader
     train_loader = DataLoader(
         training_dataset,
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     )
     model.type(dtype)
 
-    loss_fn = nn.CrossEntropyLoss().type(dtype)
+    loss_fn = nn.BCELoss().type(dtype)
     optimizer = optim.Adam(model.parameters(), lr=5e-2)
 
     train(train_loader, model, loss_fn, optimizer, dtype)
