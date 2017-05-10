@@ -14,6 +14,7 @@ from read_in_data import AmazonDataset
 if __name__ == '__main__':
     ## cpu dtype
     dtype = torch.FloatTensor
+    save_model_path = "model_state_dict.pkl"
     csv_path = '../../data/train.csv'
     img_path = '../../data/train-jpg'
     training_dataset = AmazonDataset(csv_path, img_path, dtype)
@@ -27,12 +28,29 @@ if __name__ == '__main__':
     )
     ## simple linear model
     model = nn.Sequential(
+        nn.Conv2d(4, 16, kernel_size=3, stride=1),
+        nn.ReLU(inplace=True),
+        nn.BatchNorm2d(16),
+        nn.AdaptiveMaxPool2d(128),
+        nn.Conv2d(16, 32, kernel_size=3, stride=1),
+        nn.ReLU(inplace=True),
+        nn.BatchNorm2d(32),
+        nn.AdaptiveMaxPool2d(64),
         Flatten(),
-        nn.Linear(4*256*256, 17)
+        nn.Linear(32*64*64, 1024),
+        nn.ReLU(inplace=True),
+        nn.Linear(1024, 17)
     )
     model.type(dtype)
 
     loss_fn = nn.BCELoss().type(dtype)
     optimizer = optim.Adam(model.parameters(), lr=5e-2)
 
-    train(train_loader, model, loss_fn, optimizer, dtype)
+    if not from_pkl:
+        train(train_loader, model, loss_fn, optimizer, dtype)
+
+        torch.save(model.state_dict(), save_model_path)
+
+    else:
+        state_dict = torch.load(save_model_path)
+        model.load_state_dict(state_dict)

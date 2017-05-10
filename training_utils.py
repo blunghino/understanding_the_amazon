@@ -65,13 +65,3 @@ def check_accuracy(model, loader, dtype):
         num_samples += preds.size(0)
     acc = float(num_correct) / num_samples
     print('Got %d / %d correct (%.2f)' % (num_correct, num_samples, 100 * acc))
-
-class Flatten(nn.Module):
-    """
-    flatten a 4d tensor into a 2d tensor
-
-    from cs231n assignment 2
-    """
-    def forward(self, x):
-        N, C, H, W = x.size() # read in N, C, H, W
-        return x.view(N, -1)  # "flatten" the C * H * W values into a single vector per image
