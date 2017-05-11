@@ -1,6 +1,8 @@
 """
-testing the basic setup of a model script using a model with a single affine layer
+testing the basic setup of a model script using a model with two conv layers
 """
+import os.path 
+
 import torch
 import torch.nn as nn
 import torch.optim as optim 
@@ -12,6 +14,10 @@ from read_in_data import AmazonDataset
 
 
 if __name__ == '__main__':
+    try:
+        from_pickle = int(sys.argv[1])
+    except IndexError:
+        from_pickle = 1
     ## cpu dtype
     dtype = torch.FloatTensor
     save_model_path = "model_state_dict.pkl"
@@ -45,12 +51,13 @@ if __name__ == '__main__':
 
     loss_fn = nn.BCELoss().type(dtype)
     optimizer = optim.Adam(model.parameters(), lr=5e-2)
-
-    if not from_pkl:
+    ## don't load model params from file - instead retrain the model
+    if not from_pickle:
         train(train_loader, model, loss_fn, optimizer, dtype)
-
+        ## serialize model data and save as .pkl file
         torch.save(model.state_dict(), save_model_path)
-
+        print("model saved as {}".format(os.path.abspath))
+    ## load model params from file
     else:
         state_dict = torch.load(save_model_path)
         model.load_state_dict(state_dict)

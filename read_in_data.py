@@ -28,7 +28,6 @@ class AmazonDataset(Dataset):
         ## the paths to the images
         self.X_train = df['image_name']
         self.y_train = self.mlb.fit_transform(df['tags'].str.split()).astype(np.float32)
-        # self.y_train = torch.from_numpy(self.y_train).type(dtype)
 
     def __getitem__(self, index):
         """
@@ -38,7 +37,6 @@ class AmazonDataset(Dataset):
         img = Image.open(os.path.join(self.img_path, img_str))  
         img = self.transforms(img)
         label = torch.from_numpy(self.y_train[index]).type(self.dtype)
-        # label = self.y_train(index)
         return img, label
 
     def __len__(self):
