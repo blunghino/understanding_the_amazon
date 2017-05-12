@@ -1,3 +1,4 @@
+appdirs==1.4.3
 appnope==0.1.0
 backports-abc==0.4
 backports.ssl-match-hostname==3.5.0.1
@@ -24,11 +25,14 @@ nbconvert==4.1.0
 nbformat==4.0.1
 notebook==4.0.6
 numpy==1.10.4
+olefile==0.44
+packaging==16.8
 pandas==0.20.1
 path.py==8.1.2
 pexpect==4.0.1
 pickleshare==0.5
 Pillow==3.0.0
+protobuf==3.2.0
 ptyprocess==0.5
 Pygments==2.0.2
 pyparsing==2.0.7
@@ -44,8 +48,10 @@ singledispatch==3.4.0.3
 site==0.0.1
 six==1.10.0
 sklearn==0.0
+tensorflow==1.0.1
+tensorflow-gpu==1.0.1
 terminado==0.5
-torch==0.1.12.post2
+torch==0.1.11.post5
 torchvision==0.1.8
 tornado==4.3
 traitlets==4.0.0

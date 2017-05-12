@@ -1,6 +1,7 @@
 """
 testing the basic setup of a model script using a model with two conv layers
 """
+import sys
 import os.path 
 
 import torch
@@ -21,8 +22,8 @@ if __name__ == '__main__':
     ## cpu dtype
     dtype = torch.cuda.FloatTensor
     save_model_path = "model_state_dict.pkl"
-    csv_path = '../../data/train.csv'
-    img_path = '../../data/train-jpg'
+    csv_path = '../../data/train_v2.csv'
+    img_path = '../../data/train-tif-v2'
     training_dataset = AmazonDataset(csv_path, img_path, dtype)
     ## loader
     train_loader = DataLoader(
@@ -53,7 +54,7 @@ if __name__ == '__main__':
     optimizer = optim.Adam(model.parameters(), lr=5e-2)
     ## don't load model params from file - instead retrain the model
     if not from_pickle:
-        train(train_loader, model, loss_fn, optimizer, dtype)
+        train(train_loader, model, loss_fn, optimizer, dtype, print_every=25)
         ## serialize model data and save as .pkl file
         torch.save(model.state_dict(), save_model_path)
         print("model saved as {}".format(os.path.abspath))
