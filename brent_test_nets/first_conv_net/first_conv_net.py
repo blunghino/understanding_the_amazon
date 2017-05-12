@@ -61,3 +61,4 @@ if __name__ == '__main__':
     else:
         state_dict = torch.load(save_model_path)
         model.load_state_dict(state_dict)
+        
