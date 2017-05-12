@@ -19,7 +19,7 @@ if __name__ == '__main__':
     except IndexError:
         from_pickle = 1
     ## cpu dtype
-    dtype = torch.FloatTensor
+    dtype = torch.cuda.FloatTensor
     save_model_path = "model_state_dict.pkl"
     csv_path = '../../data/train.csv'
     img_path = '../../data/train-jpg'
@@ -29,8 +29,8 @@ if __name__ == '__main__':
         training_dataset,
         batch_size=256,
         shuffle=True,
-        num_workers=4 # 1 for CUDA
-        # pin_memory=True # CUDA only
+        num_workers=1, # 1 for CUDA
+        pin_memory=True # CUDA only
     )
     ## simple linear model
     model = nn.Sequential(
