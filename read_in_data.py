@@ -20,8 +20,7 @@ class AmazonDataset(Dataset):
         self.img_path = img_path
         self.img_ext = img_ext
         self.dtype = dtype
-        self.backend = backend
-        
+
         df = pd.read_csv(csv_path)
         
         self.mlb = MultiLabelBinarizer()
@@ -56,8 +55,9 @@ class AmazonDataset(Dataset):
 if __name__ == '__main__':
     csv_path = 'data/train_v2.csv'
     img_path = 'data/train-jpg'
+    img_ext = '.jpg'
     dtype = torch.FloatTensor
-    training_dataset = AmazonDataset(csv_path, img_path, dtype)
+    training_dataset = AmazonDataset(csv_path, img_path, img_ext, dtype)
     train_loader = DataLoader(
         training_dataset,
         batch_size=256,
