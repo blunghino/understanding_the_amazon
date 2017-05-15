@@ -1,6 +1,7 @@
 import os.path
-from PIL import Image 
+from PIL import Image
 
+import cv2
 import pandas as pd 
 from sklearn.preprocessing import MultiLabelBinarizer
 import torch
@@ -14,11 +15,13 @@ class AmazonDataset(Dataset):
     """
     class to conform data to pytorch API
     """
-    def __init__(self, csv_path, img_path, dtype, img_ext='.jpg'):
+    def __init__(self, csv_path, img_path, dtype,
+                 img_ext='.jpg', backend='freeimage'):
     
         self.img_path = img_path
         self.img_ext = img_ext
         self.dtype = dtype
+        self.backend = backend
         
         df = pd.read_csv(csv_path)
         
@@ -34,7 +37,14 @@ class AmazonDataset(Dataset):
         return X_train image and y_train index
         """
         img_str = self.X_train[index] + self.img_ext
-        img = Image.open(os.path.join(self.img_path, img_str))  
+        ## branching for different backends
+        if self.backend == 'freeimage':
+            img = []
+        elif self.backend == 'opencv':
+            img = cv2.imread(os.path.join(self.img_path, img_str), -1)
+        ## PIL default, this will work for .jpg but not 16-bit tiffs
+        else:
+            img = Image.open(os.path.join(self.img_path, img_str))
         img = self.transforms(img)
         label = torch.from_numpy(self.y_train[index]).type(self.dtype)
         return img, label
@@ -44,10 +54,10 @@ class AmazonDataset(Dataset):
 
 
 if __name__ == '__main__':
-    csv_path = 'data/train.csv'
+    csv_path = 'data/train_v2.csv'
     img_path = 'data/train-jpg'
     dtype = torch.FloatTensor
-    training_dataset = AmazonDataset(csv_path, img_path, dtype)
+    training_dataset = AmazonDataset(csv_path, img_path, dtype, backend='freeimage')
     train_loader = DataLoader(
         training_dataset,
         batch_size=256,
@@ -55,3 +65,6 @@ if __name__ == '__main__':
         num_workers=4 # 1 for CUDA
         # pin_memory=True # CUDA only
     )
+    for t, (x, y) in enumerate(train_loader):
+        print(x.size())
+        break
