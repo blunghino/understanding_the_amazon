@@ -27,7 +27,6 @@ def train(loader_train, model, loss_fn, optimizer, dtype,
         model.train()
         for t, (x, y) in enumerate(loader_train):
             x_var = Variable(x.type(dtype))
-            print(x_var)
             y_var = Variable(y.type(dtype))
 
             scores = model(x_var)
