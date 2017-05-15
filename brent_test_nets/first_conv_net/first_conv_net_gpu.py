@@ -23,8 +23,9 @@ if __name__ == '__main__':
     dtype = torch.cuda.FloatTensor
     save_model_path = "model_state_dict.pkl"
     csv_path = '../../data/train_v2.csv'
-    img_path = '../../data/train-tif-v2'
-    training_dataset = AmazonDataset(csv_path, img_path, dtype)
+    img_path = '../../data/train-jpg'
+    img_ext = '.jpg'
+    training_dataset = AmazonDataset(csv_path, img_path, img_ext, dtype)
     ## loader
     train_loader = DataLoader(
         training_dataset,

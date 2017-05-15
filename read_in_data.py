@@ -41,7 +41,7 @@ class AmazonDataset(Dataset):
             img = Image.open(load_path)
         ## tifffile
         elif self.img_ext == '.tif':
-            img = tifffile.imread(load_path, plugin='tifffile')
+            img = tifffile.imread(load_path)
             img = np.asarray(img, dtype=np.int32)
 
         img = self.transforms(img)
@@ -54,8 +54,8 @@ class AmazonDataset(Dataset):
 
 if __name__ == '__main__':
     csv_path = 'data/train_v2.csv'
-    img_path = 'data/train-jpg'
-    img_ext = '.jpg'
+    img_path = 'data/train-tif-v2'
+    img_ext = '.tif'
     dtype = torch.FloatTensor
     training_dataset = AmazonDataset(csv_path, img_path, img_ext, dtype)
     train_loader = DataLoader(
@@ -66,5 +66,8 @@ if __name__ == '__main__':
         # pin_memory=True # CUDA only
     )
     for t, (x, y) in enumerate(train_loader):
-        print(x.size())
-        break
+        try:
+            print(x.size())
+            break
+        except FileNotFoundError:
+            continue
