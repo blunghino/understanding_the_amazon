@@ -2,6 +2,7 @@
 testing the basic setup of a model script using a model with two conv layers
 """
 import os.path 
+import sys
 
 import torch
 import torch.nn as nn
@@ -21,7 +22,7 @@ if __name__ == '__main__':
     ## cpu dtype
     dtype = torch.FloatTensor
     save_model_path = "model_state_dict.pkl"
-    csv_path = '../../data/train.csv'
+    csv_path = '../../data/train_v2.csv'
     img_path = '../../data/train-jpg'
     training_dataset = AmazonDataset(csv_path, img_path, dtype)
     ## loader

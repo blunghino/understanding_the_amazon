@@ -4,7 +4,6 @@ Also analysis code to be reused (eg plotting functions)
 some code from cs231n assignment 2 pytorch ipynb
 """
 from torch.autograd import Variable
-from torch import nn, LongTensor
 
 
 def train(loader_train, model, loss_fn, optimizer, dtype,
