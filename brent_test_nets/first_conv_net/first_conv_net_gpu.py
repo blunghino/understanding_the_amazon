@@ -31,8 +31,7 @@ if __name__ == '__main__':
         training_dataset,
         batch_size=256,
         shuffle=True,
-        num_workers=1, # 1 for CUDA
-        pin_memory=True # CUDA only
+        num_workers=0, # 1 for CUDA
     )
     ## simple linear model
     model = nn.Sequential(
