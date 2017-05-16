@@ -51,10 +51,11 @@ if __name__ == '__main__':
     )
     model.type(dtype)
 
-    loss_fn = nn.BCELoss().type(dtype)
+    loss_fn = nn.MultiLabelSoftMarginLoss().type(dtype)
     optimizer = optim.Adam(model.parameters(), lr=5e-2)
     ## don't load model params from file - instead retrain the model
     if not from_pickle:
+        torch.cuda.synchronize()
         train(train_loader, model, loss_fn, optimizer, dtype, print_every=25)
         ## serialize model data and save as .pkl file
         torch.save(model.state_dict(), save_model_path)
