@@ -1,0 +1,100 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Include other packages here, before hyperref.
+
+% If you comment hyperref and then uncomment it, you should delete
+% egpaper.aux before re-running latex.  (Or just hit 'q' on the first latex
+% run, let it finish, and you should be clear).
+\usepackage[breaklinks=true,bookmarks=false]{hyperref}
+
+\cvprfinalcopy % *** Uncomment this line for the final submission
+
+\def\cvprPaperID{****} % *** Enter the CVPR Paper ID here
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+%\ifcvprfinal\pagestyle{empty}\fi
+\setcounter{page}{4321}
+\begin{document}
+
+%%%%%%%%% TITLE
+\title{Milestone: Understanding the Amazon from Space}
+
+\author{Vishal Subbiah\\
+Stanford University\\
+{\tt\small svishal@stanford.edu}
+% For a paper whose authors are all at the same institution,
+% omit the following lines up until the closing ``}''.
+% Additional authors and addresses can be added with ``\and'',
+% just like the second author.
+% To save space, use either the email address or home page, not both
+\and
+Brent Lunghino\\
+Stanford University\\
+{\tt\small lunghino@stanford.edu}
+\and
+Brian Rohr\\
+Stanford University\\
+{\tt\small brohr@stanford.edu}
+}
+
+\maketitle
+%\thispagestyle{empty}
+
+%%%%%%%%% ABSTRACT
+\begin{abstract}
+   Our project is on applying convolutional neural networks to label atmospheric conditions and landcover on satellite images of the Amazon rainforest. We will train our convnet to detect the cloudiness of an image, and what types of landuse are in the image, for example primary forest, water, or agriculture. This is an important challenge because it will improve automated classification of large satellite image datasets. Classified satellite data of the rainforest can be applied to compute deforestation rates, detect illegal mining/deforestation, and differentiate between natural and human-caused deforestation.
+\end{abstract}
+
+%%%%%%%%% BODY TEXT
+\section{GUIDELINES}
+
+\begin{itemize}
+\item Your project milestone report should be between 2 - 3 pages using the provided template. The following is a suggested structure for your report:\newline
+\item Title, Author(s)\newline
+\item Introduction: this section introduces your problem, and the overall plan for approaching your problem\newline
+\item Problem statement: Describe your problem precisely specifying the dataset to be used, expected results and evaluation\newline
+\item Technical Approach: Describe the methods you intend to apply to solve the given problem\newline
+\item Intermediate/Preliminary Results: State and evaluate your results upto the milestone
+\item Submission: Please upload a PDF file to the assignments tab on Canvas. Please have one person on your team submit your milestone. If you submit your milestone late, all team members will be charged late days.
+\end{itemize}
+\section{Introduction}
+
+	The Amazon Rainforest is extremely important to preserve due to its unmatched biodversity and primary productivity, but it is difficult to make a case for the urgency of its preservation without first quantifying the rate of its destruction.  Since the Amazon covers a 5.5 million square kilometer area, understanding and quantifying the changes in land use there over the years is a formidable task. With a great deal of effort, humans could classify one set of satellite images of the Amazon, but it is intractable for humans to go through satellite images of the entire rainforest one by one and manually label how the land is being used, and this task would need to be completed many times in order to understand how the land use is changing over time.
+
+For that reason, we are training a computational model that will be able to rapidly process satellite images of the Amazon and output labels and metrics that quantify how the land is being used. This model will be able to be used to classify the remaining hundreds of thousands of images that are not in the training set, and it will be able to be used to classify new images that are taken at future time points. With this machine learning image processing technique, temporal land use data will be easily assembled, providing the necessary data to make a case for protecting the Amazon Rainforest.
+
+
+%------------------------------------------------------------------------
+\section{Problem Statement}
+The data will be provided by Planet for a Kaggle competition. The dataset is 150,000 images that are 256x256 pixels and 4 bands of color (RGB + near-infrared). Each image is 947 m x 947 m for a resolution of 3.7 m per pixel. The dataset covers 30 million hectares of Amazon rainforest. Each of the 150,000 training examples has already been manually labeled with the following outputs: xxx.
+
+Since the project is based on a Kaggle competition, we will be able to benchmark our work with others who have submitted solutions from around the world. Since every image could belong to multiple classes, we could study the correlation between such classes and if there is a causation to be identified.
+
+%------------------------------------------------------------------------
+
+\section{Technical Approach}
+Our proposed method will be to train a convoluitonal neural network (CNN) using an F-score as our loss function. We will implement many architectures and use cross-validation to tune hyperparameters and select the best architecture. Primarily, we will take our CNN architecture inspiration from models that performed well in the ImageNet competition. Specifically, we will build a fully-connected net, a basic CNN similar to VGG-Net, and a more complex CNN similar to Res-Net. We will use the Xavier weight initialization and make use of spatial batch normalization to help the model converge quickly. We will use L2 regularization to help fight against overfitting.
+
+
+
+%------------------------------------------------------------------------
+
+
+\section{Intermediate Results}
+
+%------------------------------------------------------------------------
+
+{\small
+\bibliographystyle{ieee}
+\bibliography{egbib}
+}
+
+\end{document}
