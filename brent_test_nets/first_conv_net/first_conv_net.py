@@ -23,8 +23,8 @@ if __name__ == '__main__':
     dtype = torch.FloatTensor
     save_model_path = "model_state_dict.pkl"
     csv_path = '../../data/train_v2.csv'
-    img_path = '../../data/train-tif'
-    img_ext = '.tif'
+    img_path = '../../data/train-jpg'
+    img_ext = '.jpg'
     training_dataset = AmazonDataset(csv_path, img_path,img_ext, dtype)
     ## loader
     train_loader = DataLoader(

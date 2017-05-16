@@ -1,4 +1,6 @@
 *.gz
+.idea
+.DS_Store
 __pycache__
 data/*
 .env

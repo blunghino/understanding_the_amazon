@@ -54,20 +54,17 @@ class AmazonDataset(Dataset):
 
 if __name__ == '__main__':
     csv_path = 'data/train_v2.csv'
-    img_path = 'data/train-tif-v2'
+    img_path = 'data/train-tif-sample'
     img_ext = '.tif'
     dtype = torch.FloatTensor
     training_dataset = AmazonDataset(csv_path, img_path, img_ext, dtype)
     train_loader = DataLoader(
         training_dataset,
-        batch_size=256,
-        shuffle=True,
+        batch_size=2,
+        shuffle=False,
         num_workers=4 # 1 for CUDA
         # pin_memory=True # CUDA only
     )
     for t, (x, y) in enumerate(train_loader):
-        try:
-            print(x.size())
-            break
-        except FileNotFoundError:
-            continue
+        print(x.size())
+        break
