@@ -1,7 +1,6 @@
 from PIL import Image
-original_image = Image.open("cat.jpg")
 
-def transforms(image):
+def generate_rotations(image):
     out = []
     im1 = image.rotate(90)
     im2 = image.rotate(180)
@@ -18,5 +17,7 @@ def transforms(image):
     return out
 
 
-for i, image in enumerate(transforms(original_image)):
-    image.save('test' + str(i) + '.jpg')
+if __name__ == '__main__':
+    original_image = Image.open("cat.jpg")
+    for i, image in enumerate(transforms(original_image)):
+        image.save('test' + str(i) + '.jpg')
