@@ -5,6 +5,8 @@ some code from cs231n assignment 2 pytorch ipynb
 """
 from torch.autograd import Variable
 
+from loss import f2_score
+
 
 def train(loader_train, model, loss_fn, optimizer, dtype,
           num_epochs=1, print_every=1e5):
