@@ -23,9 +23,8 @@ training_dataset = AmazonDataset(csv_path, img_path, img_ext, dtype)
 train_loader = DataLoader(
     training_dataset,
     batch_size=256,
-    shuffle=True,
-    num_workers=1 # 1 for CUDA
-    # pin_memory=True # CUDA only
+    shuffle=True, # 1 for CUDA
+    #pin_memory=True # CUDA only
 )
 ## simple linear model
 temp_model=nn.Sequential(
@@ -42,11 +41,12 @@ temp_model=nn.Sequential(
 temp_model = temp_model.type(dtype)
 temp_model.train()
 size=0
+print(type(train_loader))
 for t, (x, y) in enumerate(train_loader):
-            x_var = Variable(x.type(dtype))
-            size=temp_model(x_var).size()
-            if(t==0):
-                break
+	x_var = Variable(x.type(dtype)).cuda()
+	size=temp_model(x_var).size()
+	if(t==0):
+		break
 
 model = nn.Sequential(
 nn.Conv2d(4, 16, kernel_size=3, stride=1),
@@ -66,8 +66,8 @@ model.type(dtype)
 model.train()
 loss_fn = nn.MultiLabelSoftMarginLoss().type(dtype)
 optimizer = optim.Adam(model.parameters(), lr=5e-2)
-
-train(train_loader, model, loss_fn, optimizer, dtype,num_epochs=1, print_every=1)
+torch.cuda.synchronize()
+train(train_loader, model, loss_fn, optimizer, dtype,num_epochs=1, print_every=10)
 
 torch.save(model.state_dict(), save_model_path)
 state_dict = torch.load(save_model_path)
