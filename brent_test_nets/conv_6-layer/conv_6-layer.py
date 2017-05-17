@@ -20,7 +20,7 @@ if __name__ == '__main__':
     except IndexError:
         from_pickle = 1
     ## cpu dtype
-    dtype = torch.cuda.FloatTensor
+    dtype = torch.FloatTensor
     save_model_path = "model_state_dict.pkl"
     csv_path = '../../data/train_v2.csv'
     img_path = '../../data/train-jpg'
@@ -29,13 +29,13 @@ if __name__ == '__main__':
     ## loader
     train_loader = DataLoader(
         training_dataset,
-        batch_size=256,
+        batch_size=128,
         shuffle=True,
-        num_workers=0, # 1 for CUDA
+        num_workers=4, # 1 for CUDA
     )
     ## simple linear model
     model = nn.Sequential(
-
+        ## 256x256
         nn.Conv2d(4, 16, kernel_size=3, stride=1),
         nn.ReLU(inplace=True),
         nn.BatchNorm2d(16),
@@ -43,7 +43,7 @@ if __name__ == '__main__':
         nn.ReLU(inplace=True),
         nn.BatchNorm2d(16),
         nn.AdaptiveMaxPool2d(128),
-
+        ## 128x128
         nn.Conv2d(16, 32, kernel_size=3, stride=1),
         nn.ReLU(inplace=True),
         nn.BatchNorm2d(32),
@@ -51,7 +51,7 @@ if __name__ == '__main__':
         nn.ReLU(inplace=True),
         nn.BatchNorm2d(32),
         nn.AdaptiveMaxPool2d(64),
-
+        ## 64x64
         nn.Conv2d(32, 64, kernel_size=3, stride=1),
         nn.ReLU(inplace=True),
         nn.BatchNorm2d(64),
@@ -59,7 +59,7 @@ if __name__ == '__main__':
         nn.ReLU(inplace=True),
         nn.BatchNorm2d(64),
         nn.AdaptiveMaxPool2d(32),
-
+        ## 32x32
         Flatten(),
         nn.Linear(64*32*32, 1024),
         nn.ReLU(inplace=True),

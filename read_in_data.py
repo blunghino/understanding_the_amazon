@@ -15,17 +15,20 @@ class AmazonDataset(Dataset):
     """
     class to conform data to pytorch API
     """
-    def __init__(self, csv_path, img_path, img_ext, dtype):
+    def __init__(self, csv_path, img_path, img_ext, dtype,
+                 transform_list=[], three_band=False):
     
         self.img_path = img_path
         self.img_ext = img_ext
         self.dtype = dtype
+        self.three_band = three_band
 
         df = pd.read_csv(csv_path)
         
         self.mlb = MultiLabelBinarizer()
         ## prepend other img transforms to this list
-        self.transforms = transforms.Compose([transforms.ToTensor()])
+        transform_list += [transforms.ToTensor()]
+        self.transforms = transforms.Compose(transform_list)
         ## the paths to the images
         self.X_train = df['image_name']
         self.y_train = self.mlb.fit_transform(df['tags'].str.split()).astype(np.float32)
@@ -39,6 +42,9 @@ class AmazonDataset(Dataset):
         ## branching for different backends
         if self.img_ext == '.jpg':
             img = Image.open(load_path)
+            ## convert to three color bands (eg for using with pretrained model)
+            if self.three_band:
+                img = img.convert('RGB')
         ## tifffile
         elif self.img_ext == '.tif':
             img = tifffile.imread(load_path)
