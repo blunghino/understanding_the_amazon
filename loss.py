@@ -8,7 +8,6 @@ from torch import np
 def f2_score(y_true, y_pred, threshold=0.5):
     return fbeta_score(y_true, y_pred, 2, threshold)
 
-
 def fbeta_score(y_true, y_pred, beta, threshold, eps=1e-9):
     beta2 = beta**2
 

@@ -43,7 +43,7 @@ def train(loader_train, model, loss_fn, optimizer, dtype,
 
 def train_epoch(loader_train, model, loss_fn, optimizer, dtype, print_every=20):
     """
-    train `model` on data from `loader_train`
+    train `model` on data from `loader_train` for one epoch
 
     inputs:
     `loader_train` object subclassed from torch.data.DataLoader
@@ -53,6 +53,7 @@ def train_epoch(loader_train, model, loss_fn, optimizer, dtype, print_every=20):
     `dtype` data type for variables
         eg torch.FloatTensor (cpu) or torch.cuda.FloatTensor (gpu)
     """
+    loss_history = []
     model.train()
     for t, (x, y) in enumerate(loader_train):
         x_var = Variable(x.type(dtype))
@@ -61,12 +62,16 @@ def train_epoch(loader_train, model, loss_fn, optimizer, dtype, print_every=20):
         scores = model(x_var)
 
         loss = loss_fn(scores, y_var)
+        loss_history.append(loss.data[0])
+
         if (t + 1) % print_every == 0:
             print('t = %d, loss = %.4f' % (t + 1, loss.data[0]))
 
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+
+    return loss_history
 
 def validate_epoch(model, loader, loss_fn, dtype):
     """
@@ -80,16 +85,14 @@ def validate_epoch(model, loader, loss_fn, dtype):
         y_var = Variable(y.type(dtype))
 
         scores = model(x_var)
-        loss = loss_fn(scores, y_var)
 
         ## these are the predicted classes
         ## https://discuss.pytorch.org/t/calculating-accuracy-for-a-multi-label-classification-problem/2303
         y_pred = torch.sigmoid(scores).data > 0.5
-        print(type(y_pred))
-        print(type(y))
+
         acc = f2_score(y, y_pred)
 
-    return acc, loss
+    return acc
 
 
 def check_accuracy(model, loader, dtype):

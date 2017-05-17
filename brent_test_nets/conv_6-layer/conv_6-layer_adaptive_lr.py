@@ -9,9 +9,10 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
-from training_utils import train, validate_epoch
+from training_utils import train_epoch, validate_epoch
 from layers import Flatten
-from read_in_data import AmazonDataset
+from read_in_data import generate_train_val_dataset
+from pytorch_addons.pytorch_lr_scheduler.lr_scheduler import ReduceLROnPlateau
 
 
 if __name__ == '__main__':
@@ -25,7 +26,12 @@ if __name__ == '__main__':
     csv_path = '../../data/train_v2.csv'
     img_path = '../../data/train-jpg'
     img_ext = '.jpg'
-    training_dataset = AmazonDataset(csv_path, img_path, img_ext, dtype)
+    training_dataset, validation_dataset = generate_train_val_dataset(
+        csv_path,
+        img_path,
+        img_ext,
+        dtype
+    )
     ## loader
     train_loader = DataLoader(
         training_dataset,
@@ -34,7 +40,7 @@ if __name__ == '__main__':
         num_workers=4, # 1 for CUDA
     )
 
-    # val_loader = DataLoader()
+    val_loader = DataLoader(validation_dataset)
 
     ## simple linear model
     model = nn.Sequential(
@@ -72,9 +78,13 @@ if __name__ == '__main__':
 
     loss_fn = nn.MultiLabelSoftMarginLoss().type(dtype)
     optimizer = optim.Adam(model.parameters(), lr=5e-3)
+    scheduler = ReduceLROnPlateau(optimizer, patience=1)
+
     ## don't load model params from file - instead retrain the model
     if not from_pickle:
-        train(train_loader, model, loss_fn, optimizer, dtype, print_every=10)
+        for epoch in range(num_epochs):
+            loss_history = train_epoch(train_loader, model, loss_fn, optimizer, dtype, print_every=10)
+            scheduler.step(loss_history, epoch)
         ## serialize model data and save as .pkl file
         torch.save(model.state_dict(), save_model_path)
         print("model saved as {}".format(os.path.abspath))

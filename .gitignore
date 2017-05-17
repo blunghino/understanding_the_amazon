@@ -1,4 +1,5 @@
 *.gz
+*.pkl
 *.pyc
 .idea
 .DS_Store
