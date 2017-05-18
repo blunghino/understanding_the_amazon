@@ -59,6 +59,50 @@ class AmazonDataset(Dataset):
     def __len__(self):
         return len(self.X_train.index)
 
+class AmazonTestDataset(Dataset):
+    """
+    class to conform data to pytorch API
+    """
+    def __init__(self, csv_path, img_path, img_ext, dtype,
+                 transform_list=[], three_band=False):
+
+        self.img_path = img_path
+        self.img_ext = img_ext
+        self.dtype = dtype
+        self.three_band = three_band
+
+        df = pd.read_csv(csv_path)
+
+        ## prepend other img transforms to this list
+        transform_list += [transforms.ToTensor()]
+        self.transforms = transforms.Compose(transform_list)
+        ## the paths to the images
+        self.X_train = df['image_name']
+
+    def __getitem__(self, index):
+        """
+        return X_train image and y_train index
+        """
+        img_str = self.X_train[index] + self.img_ext
+        load_path = os.path.join(self.img_path, img_str)
+        ## branching for different backends
+        if self.img_ext == '.jpg':
+            img = Image.open(load_path)
+            ## convert to three color bands (eg for using with pretrained model)
+            if self.three_band:
+                img = img.convert('RGB')
+        ## tifffile
+        elif self.img_ext == '.tif':
+            img = tifffile.imread(load_path)
+            img = np.asarray(img, dtype=np.int32)
+
+        img = self.transforms(img)
+        return img
+
+    def __len__(self):
+        return len(self.X_train.index)
+
+
 def generate_train_val_dataloader(dataset, batch_size, num_workers,
                                   shuffle=True, split=0.9, use_fraction_of_data=1.):
     """
@@ -73,6 +117,7 @@ def generate_train_val_dataloader(dataset, batch_size, num_workers,
         n_samples = len(dataset)
     inds = np.arange(n_samples)
     train_inds, val_inds = train_test_split(inds, test_size=1-split, train_size=split)
+
     train_loader = DataLoader(
         dataset,
         sampler=SubsetRandomSampler(train_inds),
