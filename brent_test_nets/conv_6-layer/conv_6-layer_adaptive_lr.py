@@ -30,8 +30,9 @@ if __name__ == '__main__':
         use_cuda = True
     ############################### SETTINGS ###################################
     ## only need to change things in this part of the code
-    save_model_path = "conv_6-layer_state_dict.pkl"
-    save_mat_path = "conv_6-layer_loss_and_acc.mat"
+    root = "conv_6-layer" # name of model
+    save_model_path = "{}_state_dict.pkl".format(root)
+    save_mat_path = "{}_loss_and_acc.mat".format(root)
     csv_path = '../../data/train_v2.csv'
     img_path = '../../data/train-jpg'
     img_ext = '.jpg'
@@ -41,11 +42,15 @@ if __name__ == '__main__':
     ## optimization hyperparams
     lr = 1e-3
     num_epochs = 7
+    adaptive_lr_patience = 0 # scale lr after loss plateaus for "patience" epochs
+    adaptive_lr_factor = 0.1 # scale lr by this factor
     ## whether to generate predictions on test
     run_test = True
     test_csv_path = "../../data/sample_submission.csv"
     test_img_path = "../../data/test-jpg"
+    test_results_csv_path = "{}_results.csv".format(root)
     ############################################################################
+    ## cpu/gpu settings
     if use_cuda:
         dtype = torch.cuda.FloatTensor
         num_workers = 0
@@ -99,7 +104,9 @@ if __name__ == '__main__':
     ## set up optimization
     loss_fn = nn.MultiLabelSoftMarginLoss().type(dtype)
     optimizer = optim.Adam(model.parameters(), lr=lr)
-    scheduler = ReduceLROnPlateau(optimizer, patience=0, cooldown=2, verbose=1, factor=0.1, min_lr=0.000001*lr)
+    scheduler = ReduceLROnPlateau(optimizer, patience=adaptive_lr_patience,
+                                  cooldown=2, verbose=1, min_lr=1e-5*lr,
+                                  factor=adaptive_lr_factor)
 
     acc_history = []
     loss_history = []
@@ -132,5 +139,4 @@ if __name__ == '__main__':
         test_dataset = AmazonTestDataset(test_csv_path, test_img_path, img_ext, dtype)
         test_loader = DataLoader(test_dataset, batch_size=batch_size, num_workers=num_workers)
         test_preds = test_model(model, test_loader, dtype)
-        print(test_preds.size())
-        print(test_preds[-1,:])
+
