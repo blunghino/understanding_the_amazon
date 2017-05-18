@@ -50,7 +50,7 @@ Stanford University\\
 
 %%%%%%%%% ABSTRACT
 \begin{abstract}
-   Our project is on applying convolutional neural networks to label atmospheric conditions and landcover on satellite images of the Amazon rainforest. We will train our convnet to detect the cloudiness of an image, and what types of landuse are in the image, for example primary forest, water, or agriculture. This is an important challenge because it will improve automated classification of large satellite image datasets. Classified satellite data of the rainforest can be applied to compute deforestation rates, detect illegal mining/deforestation, and differentiate between natural and human-caused deforestation.
+   In this work, we use convolutional neural networks to assign atmospheric conditions labels and land usage labels to satellite images of the Amazon Rainforest. We have trained several neural networks and submitted results to the Kaggle.com competition. To date, our best result is 75\% accuracy (F2-score) on the validation set, but we expect to be able to improve on that result going forward by using data augmentation, deeper architectures, and more fine-tuned hyperparameter optimization.
 \end{abstract}
 
 %%%%%%%%% BODY TEXT
@@ -69,28 +69,45 @@ Stanford University\\
 
 	The Amazon Rainforest is extremely important to preserve due to its unmatched biodversity and primary productivity, but it is difficult to make a case for the urgency of its preservation without first quantifying the rate of its destruction.  Since the Amazon covers a 5.5 million square kilometer area, understanding and quantifying the changes in land use there over the years is a formidable task. With a great deal of effort, humans could classify one set of satellite images of the Amazon, but it is intractable for humans to go through satellite images of the entire rainforest one by one and manually label how the land is being used, and this task would need to be completed many times in order to understand how the land use is changing over time.
 
-For that reason, we are training a computational model that will be able to rapidly process satellite images of the Amazon and output labels and metrics that quantify how the land is being used. This model will be able to be used to classify the remaining hundreds of thousands of images that are not in the training set, and it will be able to be used to classify new images that are taken at future time points. With this machine learning image processing technique, temporal land use data will be easily assembled, providing the necessary data to make a case for protecting the Amazon Rainforest.
+For that reason, we are training a computational model that will be able to rapidly process satellite images of the Amazon and output labels and metrics that quantify how the land is being used. This model will be able to be used to classify the remaining hundreds of thousands of images that are not in the training set, and it will be able to be used to classify new images that are taken at future time points. With this machine learning image processing technique, temporal land use data will be easily assembled, providing the necessary data to make a case for protecting the Amazon Rainforest. Furthermore, satellite data of the rainforest can be applied to compute deforestation rates, detect illegal mining/deforestation, and differentiate between natural and human-caused deforestation.
 
 
 %------------------------------------------------------------------------
 \section{Problem Statement}
-The data will be provided by Planet for a Kaggle competition. The dataset is 150,000 images that are 256x256 pixels and 4 bands of color (RGB + near-infrared). Each image is 947 m x 947 m for a resolution of 3.7 m per pixel. The dataset covers 30 million hectares of Amazon rainforest. Each of the 150,000 training examples has already been manually labeled with the following outputs: xxx.
-
-Since the project is based on a Kaggle competition, we will be able to benchmark our work with others who have submitted solutions from around the world. Since every image could belong to multiple classes, we could study the correlation between such classes and if there is a causation to be identified.
+The data is provided by Planet for a Kaggle competition. The training data set is 150,000 images. Each images is 256x256 pixels and 4 bands of color (RGB + near-infrared). Each image is 947 m x 947 m for a resolution of 3.7 m per pixel. The dataset covers 30 million hectares of Amazon rainforest. Each of the 150,000 training examples has already been manually labeled as either belonging to or not belonging to each of the following categories: cloudy, partly cloudy, hazy, primary rainforest, water, habitation, agriculture, road, cultivation, bare ground, slash and burn, selective lodging, blooming, conventional mining, artisinal mining, and blow down.
 
 %------------------------------------------------------------------------
 
 \section{Technical Approach}
-Our proposed method will be to train a convoluitonal neural network (CNN) using an F-score as our loss function. We will implement many architectures and use cross-validation to tune hyperparameters and select the best architecture. Primarily, we will take our CNN architecture inspiration from models that performed well in the ImageNet competition. Specifically, we will build a fully-connected net, a basic CNN similar to VGG-Net, and a more complex CNN similar to Res-Net. We will use the Xavier weight initialization and make use of spatial batch normalization to help the model converge quickly. We will use L2 regularization to help fight against overfitting.
+Our goal is to train a neural network that gives a high F2-score on the validation set. We will implement many architectures and use cross-validation to tune hyperparameters and select the best architecture.
+
+\textbf{Architectures:} We will train a fully-connected neural net to get a comparison between the performance of fully-connected nets and convolutional neural nets (CNNs) for this problem. When designing our CNN architectures, we will take our inspiration from models that performed well in the ImageNet competition. Specifically, we will build a CNN similar to VGG-Net and one similar to Res-Net.
+
+\textbf{Enhancing training speed:} To enhance training speed, we will us the Adam optimizer, which generally finds local minima more quickly than stochastic gradient descent. Also, we will use spatial batch normalization layers frequently to make unit gaussian weight distributions that should train readily. We will do our initial hyperparameter tuning and architecture selection on a subset of the training data set so that we can quickly identify a good order of magnitude for each hyperparameter. Additionally, we will be using a GPU to train our models, which we expect to provide a large boost in training speed.
+
+\textbf{Overfitting/Underfitting (Bias/Variance Analysis):} It is important to keep track of whether the model is overfit or underfit. To monitor how overfit or underfit our model is, we will plot the loss, validation accuracy, and training accuracy as a function of epoch for each set of hyperparameters that we use. If the validation accuracy begins to suffer while the training accuracy continues to increase, we will know that our model is overfit. However, if the loss converges quickly and the training accuracy and validation accuracy are similar, we will know that the model is underfit. Two methods that we can use to fight against overfitting or underfitting are regularization and model complexity. If the model is overfit, we could increase regularization strength or decrease the model's complexity. If the model is underfit, we could decrease regularization or increase the model's complexity by adding more layers or more filters in the convolutional layers.
 
 
 
 %------------------------------------------------------------------------
-
 
 \section{Intermediate Results}
+At this point, we have successfully trained several models and submitted results to Kaggle.com.
+
+We have uploaded the 20GB of training image data to a Google Cloud virtual instance with one GPU. We have successfully used PyTorch to read in the image data and train a 6-layer CNN. The loss quickly converges and oscillates around a local minimum. To find the minimum more effectively, we added learning rate decay. When the loss function does not improve for two consecutive batches, the learning rate is decayed by a factor of ten.
+
+
+\begin{figure}
+    \includegraphics[width=\columnwidth]{LossCurve.png}
+    \caption{Learning Curve}
+\end{figure}
+
 
 %------------------------------------------------------------------------
+\section{Future Work}
+
+%------------------------------------------------------------------------
+
 
 {\small
 \bibliographystyle{ieee}
