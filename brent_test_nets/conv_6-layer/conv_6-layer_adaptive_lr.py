@@ -7,7 +7,7 @@ import os.path
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from scipy.io import savemat
+from torch import np
 
 from training_utils import train_epoch, validate_epoch
 from layers import Flatten
@@ -77,7 +77,7 @@ if __name__ == '__main__':
     num_epochs = 7
     loss_fn = nn.MultiLabelSoftMarginLoss().type(dtype)
     optimizer = optim.Adam(model.parameters(), lr=lr)
-    scheduler = ReduceLROnPlateau(optimizer, patience=1, factor=0.1, min_lr=0.00001*lr)
+    scheduler = ReduceLROnPlateau(optimizer, patience=0, verbose=1, factor=0.1, min_lr=0.00001*lr)
 
     acc_history = []
     loss_history = []
@@ -85,16 +85,13 @@ if __name__ == '__main__':
     if not from_pickle:
         for epoch in range(num_epochs):
             print("Begin epoch {}/{}".format(epoch+1, num_epochs))
-            epoch_loss = train_epoch(train_loader, model, loss_fn, optimizer,
+            epoch_losses = train_epoch(train_loader, model, loss_fn, optimizer,
                                        dtype, print_every=10)
-            scheduler.step(epoch_loss[-1], epoch)
+            scheduler.step(np.mean(epoch_losses), epoch)
             ## f2 score for validation dataset
             acc = validate_epoch(model, val_loader, dtype)
             acc_history.append(acc)
-            loss_history += epoch_loss
-            ## print learning rate
-            for param_group in optimizer.param_groups:
-                print("learning rate: {}".format(param_group['lr']))
+            loss_history += epoch_losses
             print("END epoch {}/{}: F2 score = {:.02f}".format(epoch+1, num_epochs, acc))
         ## serialize model data and save as .pkl file
         torch.save(model.state_dict(), save_model_path)
