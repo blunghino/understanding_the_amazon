@@ -60,7 +60,7 @@ class AmazonDataset(Dataset):
         return len(self.X_train.index)
 
 
-def generate_train_val_dataloader(dataset, train_batch_size, num_workers,
+def generate_train_val_dataloader(dataset, batch_size, num_workers,
                                   shuffle=True, split=0.9, use_fraction_of_data=1.):
     """
     return two Dataloaders split into training and validation
@@ -77,14 +77,14 @@ def generate_train_val_dataloader(dataset, train_batch_size, num_workers,
     train_loader = DataLoader(
         dataset,
         sampler=SubsetRandomSampler(train_inds),
-        batch_size=train_batch_size,
+        batch_size=batch_size,
         shuffle=shuffle,
         num_workers=num_workers
     )
     val_loader = DataLoader(
         dataset,
         sampler=SubsetRandomSampler(val_inds),
-        batch_size=len(val_inds),
+        batch_size=batch_size,
         shuffle=shuffle,
         num_workers=num_workers
     )

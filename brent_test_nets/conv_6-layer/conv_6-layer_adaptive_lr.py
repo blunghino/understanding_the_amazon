@@ -85,7 +85,7 @@ if __name__ == '__main__':
             print("Begin epoch {}/{}".format(epoch+1, num_epochs))
             epoch_loss = train_epoch(train_loader, model, loss_fn, optimizer,
                                        dtype, print_every=10)
-            scheduler.step(loss_history, epoch)
+            scheduler.step(epoch_loss[-1], epoch)
             ## f2 score for validation dataset
             acc = validate_epoch(model, val_loader, dtype)
             acc_history.append(acc)
