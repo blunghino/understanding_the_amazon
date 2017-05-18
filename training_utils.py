@@ -77,47 +77,29 @@ def train_epoch(loader_train, model, loss_fn, optimizer, dtype, print_every=20):
 def validate_epoch(model, loader, dtype):
     """
     validation for MultiLabelMarginLoss using f2 score
-    """
-    ## Put the model in test mode
-    model.eval()
-    ## this for loop should be length 1 because the batch size should be equal to len(loader)
-    for x, _ in loader:
-        x_var = Variable(x.type(dtype), volatile=True)
-        break
 
-    scores = model(x_var)
-
-    ## these are the predicted classes
-    ## https://discuss.pytorch.org/t/calculating-accuracy-for-a-multi-label-classification-problem/2303
-    y_pred = torch.sigmoid(scores).data > 0.5
-
-    return f2_score(y, y_pred)
-
-
-def check_accuracy(model, loader, dtype):
-    """
-    function to check performance of trained model against validation dataset
     `model` is a trained subclass of torch.nn.Module
     `loader` is a torch.dataset.DataLoader for validation data
     `dtype` data type for variables
         eg torch.FloatTensor (cpu) or torch.cuda.FloatTensor (gpu)
-
-    from cs231n assignment 2
     """
-    if loader.dataset.train:
-        print('Checking accuracy on validation set')
-    else:
-        print('Checking accuracy on test set')
-    num_correct = 0
-    num_samples = 0
-    model.eval() # Put the model in test mode (the opposite of model.train(), essentially)
-    for x, y in loader:
+    x, y = loader.dataset[0]
+    y_array = torch.zeros((len(loader.dataset), y.size()[0]))
+    y_pred_array = torch.zeros(y_array.size())
+    bs = loader.batch_size
+    ## Put the model in test mode
+    model.eval()
+    ## this for loop should be length 1 because the batch size should be equal to len(loader)
+    for i, (x, y) in enumerate(loader):
         x_var = Variable(x.type(dtype), volatile=True)
 
         scores = model(x_var)
-        ## TODO: modify below to make this work for MULTICLASS
-        _, preds = scores.data.cpu().max(1)
-        num_correct += (preds == y).sum()
-        num_samples += preds.size(0)
-    acc = float(num_correct) / num_samples
-    print('Got %d / %d correct (%.2f)' % (num_correct, num_samples, 100 * acc))
+
+        ## these are the predicted classes
+        ## https://discuss.pytorch.org/t/calculating-accuracy-for-a-multi-label-classification-problem/2303
+        y_pred = torch.sigmoid(scores).data > 0.5
+
+        y_array[i*bs:(i+1)*bs,:] = y
+        y_pred_array[i*bs:(i+1)*bs,:] = y_pred
+
+    return f2_score(y_array, y_pred_array)

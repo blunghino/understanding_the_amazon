@@ -61,11 +61,18 @@ class AmazonDataset(Dataset):
 
 
 def generate_train_val_dataloader(dataset, train_batch_size, num_workers,
-                                  shuffle=True, split=0.9):
+                                  shuffle=True, split=0.9, use_fraction_of_data=1.):
     """
     return two Dataloaders split into training and validation
+    `split` sets the train/val split fraction (0.9 is 90 % training data)
+    u
     """
-    inds = np.arange(len(dataset))
+    ## this is a testing feature to make epochs go faster, uses only some of the available data
+    if use_fraction_of_data < 1.:
+        n_samples = int(use_fraction_of_data * len(dataset))
+    else:
+        n_samples = len(dataset)
+    inds = np.arange(n_samples)
     train_inds, val_inds = train_test_split(inds, test_size=1-split, train_size=split)
     train_loader = DataLoader(
         dataset,

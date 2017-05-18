@@ -85,6 +85,6 @@ if __name__ == '__main__':
         model.load_state_dict(state_dict)
         print("model loaded from {}".format(os.path.abspath(save_model_path)))
 
-    train_acc_loader = DataLoader(training_dataset, batch_size=2000, shuffle=True, num_workers=6)
+    train_acc_loader = DataLoader(training_dataset, batch_size=200, shuffle=True, num_workers=6)
     acc = validate_epoch(model, train_acc_loader, dtype)
     print(acc)

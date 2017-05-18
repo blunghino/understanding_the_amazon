@@ -23,6 +23,7 @@ if __name__ == '__main__':
     ## cpu dtype
     dtype = torch.cuda.FloatTensor
     save_model_path = "conv_6-layer_state_dict.pkl"
+    save_mat_path = "conv_6-layer_loss_and_acc.mat"
     csv_path = '../../data/train_v2.csv'
     img_path = '../../data/train-jpg'
     img_ext = '.jpg'
@@ -70,8 +71,8 @@ if __name__ == '__main__':
     model.type(dtype)
 
     ## set up optimization including hyperparams
-    lr = 5e-3
-    num_epochs = 10
+    lr = 1e-3
+    num_epochs = 5
     loss_fn = nn.MultiLabelSoftMarginLoss().type(dtype)
     optimizer = optim.Adam(model.parameters(), lr=lr)
     scheduler = ReduceLROnPlateau(optimizer, patience=1, factor=0.5, min_lr=0.01*lr)
@@ -93,7 +94,8 @@ if __name__ == '__main__':
         ## serialize model data and save as .pkl file
         torch.save(model.state_dict(), save_model_path)
         print("model saved as {}".format(os.path.abspath(save_model_path)))
-        savemat("loss_and_acc.mat", {"acc": acc_history, "loss": loss_history, "num_epochs": num_epochs})
+        ## save loss and accuracy as .mat file
+        savemat(save_mat_path, {"acc": acc_history, "loss": loss_history, "num_epochs": num_epochs})
     ## load model params from file
     else:
         state_dict = torch.load(save_model_path,
