@@ -28,8 +28,10 @@ if __name__ == '__main__':
         use_cuda = int(sys.argv[2])
     except IndexError:
         use_cuda = True
+
     ############################### SETTINGS ###################################
     ## only need to change things in this part of the code
+
     root = "conv_6-layer" # name of model
     save_model_path = "{}_state_dict.pkl".format(root)
     save_mat_path = "{}_loss_and_acc.mat".format(root)
@@ -38,7 +40,7 @@ if __name__ == '__main__':
     img_ext = '.jpg'
     ## dataloader params
     batch_size = 128
-    use_fraction_of_data = 0.2 # 1 to train on full data set
+    use_fraction_of_data = 1 # 1 to train on full data set
     ## optimization hyperparams
     lr = 1e-3
     num_epochs = 7
@@ -50,7 +52,8 @@ if __name__ == '__main__':
     test_img_path = "../../data/test-jpg"
     test_results_csv_path = "{}_results.csv".format(root)
     ############################################################################
-    ## cpu/gpu settings
+
+    ## cpu/gpu setup
     if use_cuda:
         dtype = torch.cuda.FloatTensor
         num_workers = 0
@@ -107,27 +110,29 @@ if __name__ == '__main__':
     scheduler = ReduceLROnPlateau(optimizer, patience=adaptive_lr_patience,
                                   cooldown=2, verbose=1, min_lr=1e-5*lr,
                                   factor=adaptive_lr_factor)
-
-    acc_history = []
+    train_acc_history = []
+    val_acc_history = []
     loss_history = []
     ## don't load model params from file - instead retrain the model
     if not from_pickle:
         for epoch in range(num_epochs):
             print("Begin epoch {}/{}".format(epoch+1, num_epochs))
-            epoch_losses = train_epoch(train_loader, model, loss_fn, optimizer,
+            epoch_losses, epoch_f2 = train_epoch(train_loader, model, loss_fn, optimizer,
                                        dtype, print_every=10)
             scheduler.step(np.mean(epoch_losses), epoch)
             ## f2 score for validation dataset
-            acc = validate_epoch(model, val_loader, dtype)
+            f2_acc = validate_epoch(model, val_loader, dtype)
             ## store results
-            acc_history.append(acc)
+            train_acc_history += epoch_f2
+            val_acc_history.append(f2_acc)
             loss_history += epoch_losses
             print("END epoch {}/{}: F2 score = {:.02f}".format(epoch+1, num_epochs, acc))
         ## serialize model data and save as .pkl file
         torch.save(model.state_dict(), save_model_path)
         print("model saved as {}".format(os.path.abspath(save_model_path)))
         ## save loss and accuracy as .mat file
-        save_accuracy_and_loss_mat(save_mat_path, acc_history, loss_history, num_epochs)
+        save_accuracy_and_loss_mat(save_mat_path, train_acc_history,
+                                   val_acc_history, loss_history, num_epochs)
     ## load model params from file
     else:
         state_dict = torch.load(save_model_path,

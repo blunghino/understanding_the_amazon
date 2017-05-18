@@ -54,7 +54,7 @@ def train_epoch(loader_train, model, loss_fn, optimizer, dtype, print_every=20):
     `dtype` data type for variables
         eg torch.FloatTensor (cpu) or torch.cuda.FloatTensor (gpu)
     """
-    ## acc_history = []
+    acc_history = []
     loss_history = []
     model.train()
     for t, (x, y) in enumerate(loader_train):
@@ -66,16 +66,18 @@ def train_epoch(loader_train, model, loss_fn, optimizer, dtype, print_every=20):
         loss = loss_fn(scores, y_var)
         loss_history.append(loss.data[0])
 
-        ## todo output training accuracy for each batch???
+        y_pred = torch.sigmoid(scores).data > 0.5
+        acc = f2_score(y, y_pred)
+        acc_history.append(acc)
 
         if (t + 1) % print_every == 0:
-            print('t = %d, loss = %.4f' % (t + 1, loss.data[0]))
+            print('t = %d, loss = %.4f, f2 = %.4f' % (t + 1, loss.data[0], acc.data[0]))
 
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-    return loss_history
+    return loss_history, acc_history
 
 def validate_epoch(model, loader, dtype):
     """
@@ -123,8 +125,7 @@ def test_model(model, loader, mlb, dtype, out_file_name="", n_classes=17):
         ## https://discuss.pytorch.org/t/calculating-accuracy-for-a-multi-label-classification-problem/2303
         y_pred = torch.sigmoid(scores).data > 0.5
         y_pred_array[i*bs:(i+1)*bs,:] = y_pred
-        if i > 10:
-            break
+
     ## generate labels from MultiLabelBinarizer
     labels = mlb.inverse_transform(y_pred_array.numpy())
 
@@ -142,6 +143,5 @@ def test_model(model, loader, mlb, dtype, out_file_name="", n_classes=17):
                     str1 += str(lab) + " "
 
                 writer.writerow({'image_name': file_names[i], 'tags': str1})
-                if i > 10*bs:
-                    break
+
     return y_pred_array
