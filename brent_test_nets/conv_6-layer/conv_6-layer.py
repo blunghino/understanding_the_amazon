@@ -7,11 +7,10 @@ import os.path
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader
 
 from training_utils import train, validate_epoch
 from layers import Flatten
-from read_in_data import AmazonDataset
+from read_in_data import AmazonDataset, generate_train_val_dataloader
 
 
 if __name__ == '__main__':
@@ -26,12 +25,12 @@ if __name__ == '__main__':
     img_path = '../../data/train-jpg'
     img_ext = '.jpg'
     training_dataset = AmazonDataset(csv_path, img_path, img_ext, dtype)
-    ## loader
-    train_loader = DataLoader(
+
+    train_loader, val_loader = generate_train_val_dataloader(
         training_dataset,
         batch_size=128,
-        shuffle=True,
-        num_workers=4, # 1 for CUDA
+        num_workers=6,
+        use_fraction_of_data=0.1,
     )
 
     # val_loader = DataLoader()
@@ -85,6 +84,5 @@ if __name__ == '__main__':
         model.load_state_dict(state_dict)
         print("model loaded from {}".format(os.path.abspath(save_model_path)))
 
-    train_acc_loader = DataLoader(training_dataset, batch_size=200, shuffle=True, num_workers=6)
-    acc = validate_epoch(model, train_acc_loader, dtype)
+    acc = validate_epoch(model, val_loader, dtype)
     print(acc)

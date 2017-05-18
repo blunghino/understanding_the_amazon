@@ -84,7 +84,7 @@ def validate_epoch(model, loader, dtype):
         eg torch.FloatTensor (cpu) or torch.cuda.FloatTensor (gpu)
     """
     x, y = loader.dataset[0]
-    y_array = torch.zeros((len(loader.dataset), y.size()[0]))
+    y_array = torch.zeros((len(loader.sampler), y.size()[0]))
     y_pred_array = torch.zeros(y_array.size())
     bs = loader.batch_size
     ## Put the model in test mode
