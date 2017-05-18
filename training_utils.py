@@ -140,7 +140,7 @@ def test_model(model, loader, mlb, dtype, out_file_name="", n_classes=17):
                 for j in range(n_classes):
                     ## check if there is a label match
                     if(y_pred_array[i,j] == 1):
-                        str1 += str(labels[j]) + " "
+                        str1 += str(labels[i,j]) + " "
 
                 writer.writerow({'image_name': file_names[i], 'tags': str1})
                 if i > 10*bs:
