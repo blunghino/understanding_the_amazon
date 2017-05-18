@@ -106,7 +106,7 @@ def validate_epoch(model, loader, dtype):
 
     return f2_score(y_array, y_pred_array)
 
-def test_model(model, loader, dtype, out_file_name="", n_classes=17):
+def test_model(model, loader, mlb, dtype, out_file_name="", n_classes=17):
     """
     run the model on test data and generate a csv file for submission to kaggle
     """
@@ -123,9 +123,10 @@ def test_model(model, loader, dtype, out_file_name="", n_classes=17):
         ## https://discuss.pytorch.org/t/calculating-accuracy-for-a-multi-label-classification-problem/2303
         y_pred = torch.sigmoid(scores).data > 0.5
         y_pred_array[i*bs:(i+1)*bs,:] = y_pred
-
+        if i > 10:
+            break
     ## generate labels from MultiLabelBinarizer
-    labels = loader.dataset.mlb.inverse_transform(y_pred_array)
+    labels = mlb.inverse_transform(y_pred_array)
     ## write output file
     if out_file_name:
         with open(out_file_name, 'w', newline='') as csvfile:
@@ -139,4 +140,6 @@ def test_model(model, loader, dtype, out_file_name="", n_classes=17):
                     if(y_pred_array[i,j]==1):
                         str1+=str(labels[j])+" "
                 writer.writerow({'image_name': file_names[i], 'tags': str1})
+                if i > 10:
+                    break
     return y_pred_array
