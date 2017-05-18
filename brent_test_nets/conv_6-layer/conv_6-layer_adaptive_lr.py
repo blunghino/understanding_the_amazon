@@ -99,7 +99,7 @@ if __name__ == '__main__':
     ## set up optimization
     loss_fn = nn.MultiLabelSoftMarginLoss().type(dtype)
     optimizer = optim.Adam(model.parameters(), lr=lr)
-    scheduler = ReduceLROnPlateau(optimizer, patience=0, verbose=1, factor=0.1, min_lr=0.00001*lr)
+    scheduler = ReduceLROnPlateau(optimizer, patience=0, cooldown=2, verbose=1, factor=0.1, min_lr=0.000001*lr)
 
     acc_history = []
     loss_history = []
