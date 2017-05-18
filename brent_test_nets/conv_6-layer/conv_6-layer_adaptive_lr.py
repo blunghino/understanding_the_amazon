@@ -32,8 +32,9 @@ if __name__ == '__main__':
 
     train_loader, val_loader = generate_train_val_dataloader(
         dataset,
-        train_batch_size=128,
-        num_workers=0
+        batch_size=128,
+        num_workers=0,
+        use_fraction_of_data=0.2,
     )
 
     ## 6 conv layers
