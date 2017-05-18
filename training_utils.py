@@ -4,6 +4,7 @@ Also analysis code to be reused (eg plotting functions)
 some code from cs231n assignment 2 pytorch ipynb
 """
 import torch
+from torch import np
 from torch.autograd import Variable
 
 from loss import f2_score
@@ -73,26 +74,24 @@ def train_epoch(loader_train, model, loss_fn, optimizer, dtype, print_every=20):
 
     return loss_history
 
-def validate_epoch(model, loader, loss_fn, dtype):
+def validate_epoch(model, loader, dtype):
     """
-    validation for MultiLabelMarginLoss
+    validation for MultiLabelMarginLoss using f2 score
     """
-    num_correct = 0
-    num_samples = 0
-    model.eval() # Put the model in test mode (the opposite of model.train(), essentially)
-    for x, y in loader:
+    ## Put the model in test mode
+    model.eval()
+    ## this for loop should be length 1 because the batch size should be equal to len(loader)
+    for x, _ in loader:
         x_var = Variable(x.type(dtype), volatile=True)
-        y_var = Variable(y.type(dtype))
+        break
 
-        scores = model(x_var)
+    scores = model(x_var)
 
-        ## these are the predicted classes
-        ## https://discuss.pytorch.org/t/calculating-accuracy-for-a-multi-label-classification-problem/2303
-        y_pred = torch.sigmoid(scores).data > 0.5
+    ## these are the predicted classes
+    ## https://discuss.pytorch.org/t/calculating-accuracy-for-a-multi-label-classification-problem/2303
+    y_pred = torch.sigmoid(scores).data > 0.5
 
-        acc = f2_score(y, y_pred)
-
-    return acc
+    return f2_score(y, y_pred)
 
 
 def check_accuracy(model, loader, dtype):

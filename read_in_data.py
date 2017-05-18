@@ -4,9 +4,11 @@ from PIL import Image
 import tifffile
 import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
+from sklearn.model_selection import train_test_split
 import torch
 from torch import np 
 from torch.utils.data import DataLoader
+from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
 
@@ -58,19 +60,36 @@ class AmazonDataset(Dataset):
         return len(self.X_train.index)
 
 
+def generate_train_val_dataloader(dataset, train_batch_size, num_workers,
+                                  shuffle=True, split=0.9):
+    """
+    return two Dataloaders split into training and validation
+    """
+    inds = np.arange(len(dataset))
+    train_inds, val_inds = train_test_split(inds, test_size=1-split, train_size=split)
+    train_loader = DataLoader(
+        dataset,
+        sampler=SubsetRandomSampler(train_inds),
+        batch_size=train_batch_size,
+        shuffle=shuffle,
+        num_workers=num_workers
+    )
+    val_loader = DataLoader(
+        dataset,
+        sampler=SubsetRandomSampler(val_inds),
+        batch_size=len(val_inds),
+        shuffle=shuffle,
+        num_workers=num_workers
+    )
+    return train_loader, val_loader
+
 if __name__ == '__main__':
     csv_path = 'data/train_v2.csv'
     img_path = 'data/train-tif-sample'
     img_ext = '.tif'
     dtype = torch.FloatTensor
     training_dataset = AmazonDataset(csv_path, img_path, img_ext, dtype)
-    train_loader = DataLoader(
-        training_dataset,
-        batch_size=2,
-        shuffle=False,
-        num_workers=4 # 1 for CUDA
-        # pin_memory=True # CUDA only
-    )
+    train_loader = gener
     for t, (x, y) in enumerate(train_loader):
         print(x.size())
         break

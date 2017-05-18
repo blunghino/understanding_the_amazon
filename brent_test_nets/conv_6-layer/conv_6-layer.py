@@ -77,9 +77,14 @@ if __name__ == '__main__':
         train(train_loader, model, loss_fn, optimizer, dtype, print_every=10)
         ## serialize model data and save as .pkl file
         torch.save(model.state_dict(), save_model_path)
-        print("model saved as {}".format(os.path.abspath))
+        print("model saved as {}".format(os.path.abspath(save_model_path)))
     ## load model params from file
     else:
         state_dict = torch.load(save_model_path,
                                 map_location=lambda storage, loc: storage)
         model.load_state_dict(state_dict)
+        print("model loaded from {}".format(os.path.abspath(save_model_path)))
+
+    train_acc_loader = DataLoader(training_dataset, batch_size=2000, shuffle=True, num_workers=6)
+    acc = validate_epoch(model, train_acc_loader, dtype)
+    print(acc)
