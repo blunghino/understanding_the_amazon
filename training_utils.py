@@ -135,12 +135,11 @@ def test_model(model, loader, mlb, dtype, out_file_name="", n_classes=17):
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
             writer.writeheader()
-            for i in range(len(labels)):
-                str1=""
-                for j in range(n_classes):
+            for i, labs in enumerate(labels):
+                str1 = ""
+                for lab in labs:
                     ## check if there is a label match
-                    if(y_pred_array[i,j] == 1):
-                        str1 += str(labels[i,j]) + " "
+                    str1 += str(lab) + " "
 
                 writer.writerow({'image_name': file_names[i], 'tags': str1})
                 if i > 10*bs:
