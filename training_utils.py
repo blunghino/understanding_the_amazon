@@ -111,13 +111,13 @@ def test_model(model, loader, mlb, dtype, out_file_name="", n_classes=17):
     run the model on test data and generate a csv file for submission to kaggle
     """
     y_pred_array = torch.zeros((len(loader.sampler), n_classes))
-    file_names=[]
+    file_names = []
     bs = loader.batch_size
     ## Put the model in test mode
     model.eval()
     for i, (x, file_name) in enumerate(loader):
         x_var = Variable(x.type(dtype), volatile=True)
-        file_names.append(file_name)
+        file_names += list(file_name)
         scores = model(x_var)
 
         ## https://discuss.pytorch.org/t/calculating-accuracy-for-a-multi-label-classification-problem/2303
@@ -127,6 +127,7 @@ def test_model(model, loader, mlb, dtype, out_file_name="", n_classes=17):
             break
     ## generate labels from MultiLabelBinarizer
     labels = mlb.inverse_transform(y_pred_array.numpy())
+
     ## write output file
     if out_file_name:
         with open(out_file_name, 'w', newline='') as csvfile:
@@ -139,8 +140,9 @@ def test_model(model, loader, mlb, dtype, out_file_name="", n_classes=17):
                 for j in range(n_classes):
                     ## check if there is a label match
                     if(y_pred_array[i,j] == 1):
-                        str1 += str(labels[j])+" "
+                        str1 += str(labels[j]) + " "
+
                 writer.writerow({'image_name': file_names[i], 'tags': str1})
-                if i > 10:
+                if i > 10*bs:
                     break
     return y_pred_array
