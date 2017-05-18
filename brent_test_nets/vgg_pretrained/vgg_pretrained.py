@@ -35,7 +35,7 @@ if __name__ == '__main__':
         training_dataset,
         batch_size=128,
         shuffle=True,
-        num_workers=4, # 1 for CUDA
+        num_workers=4, # 0 for CUDA
     )
 
     model = torchvision.models.vgg11(pretrained=True)

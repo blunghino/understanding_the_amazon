@@ -7,11 +7,11 @@ import os.path
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader
+from scipy.io import savemat
 
 from training_utils import train_epoch, validate_epoch
 from layers import Flatten
-from read_in_data import generate_train_val_dataloader
+from read_in_data import generate_train_val_dataloader, AmazonDataset
 from pytorch_addons.pytorch_lr_scheduler.lr_scheduler import ReduceLROnPlateau
 
 
@@ -21,8 +21,8 @@ if __name__ == '__main__':
     except IndexError:
         from_pickle = 1
     ## cpu dtype
-    dtype = torch.FloatTensor
-    save_model_path = "model_state_dict.pkl"
+    dtype = torch.cuda.FloatTensor
+    save_model_path = "conv_6-layer_state_dict.pkl"
     csv_path = '../../data/train_v2.csv'
     img_path = '../../data/train-jpg'
     img_ext = '.jpg'
@@ -32,10 +32,10 @@ if __name__ == '__main__':
     train_loader, val_loader = generate_train_val_dataloader(
         dataset,
         train_batch_size=128,
-        num_workers=4
+        num_workers=0
     )
 
-    ## simple linear model
+    ## 6 conv layers
     model = nn.Sequential(
         ## 256x256
         nn.Conv2d(4, 16, kernel_size=3, stride=1),
@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
     ## set up optimization including hyperparams
     lr = 5e-3
-    num_epochs = 1
+    num_epochs = 10
     loss_fn = nn.MultiLabelSoftMarginLoss().type(dtype)
     optimizer = optim.Adam(model.parameters(), lr=lr)
     scheduler = ReduceLROnPlateau(optimizer, patience=1, factor=0.5, min_lr=0.01*lr)
@@ -93,10 +93,10 @@ if __name__ == '__main__':
         ## serialize model data and save as .pkl file
         torch.save(model.state_dict(), save_model_path)
         print("model saved as {}".format(os.path.abspath(save_model_path)))
+        savemat("loss_and_acc.mat", {"acc": acc_history, "loss": loss_history, "num_epochs": num_epochs})
     ## load model params from file
     else:
         state_dict = torch.load(save_model_path,
                                 map_location=lambda storage, loc: storage)
         model.load_state_dict(state_dict)
         print("model loaded from {}".format(os.path.abspath(save_model_path)))
-    ## validate
