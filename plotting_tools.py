@@ -1,7 +1,11 @@
 from torch import np
 from matplotlib import pyplot as plt
-from scipy.io import loadmat
+from scipy.io import savemat, loadmat
 
+
+def save_accuracy_and_loss_mat(save_mat_path, acc, loss, num_epochs):
+    dic = {"acc": acc, "loss": loss, "num_epochs": num_epochs}
+    savemat(save_mat_path, dic)
 
 def plot_validation_accuracy(acc, figsize=(8,6)):
     fig = plt.figure(figsize=figsize)
@@ -19,6 +23,9 @@ def plot_loss(loss, num_epochs, figsize=(8,6)):
     return fig
 
 def accuracy_and_loss_plots_from_mat(mat_file_path, save_name=""):
+    """
+    load from matfile with vars "acc", "loss", and "num_epochs"
+    """
     data = loadmat(mat_file_path)
     acc = data["acc"].flatten()
     loss = data["loss"].flatten()

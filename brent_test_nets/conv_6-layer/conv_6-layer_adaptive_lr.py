@@ -13,6 +13,7 @@ from training_utils import train_epoch, validate_epoch
 from layers import Flatten
 from read_in_data import generate_train_val_dataloader, AmazonDataset
 from pytorch_addons.pytorch_lr_scheduler.lr_scheduler import ReduceLROnPlateau
+from plotting_tools import save_accuracy_and_loss_mat
 
 
 if __name__ == '__main__':
@@ -96,7 +97,7 @@ if __name__ == '__main__':
         torch.save(model.state_dict(), save_model_path)
         print("model saved as {}".format(os.path.abspath(save_model_path)))
         ## save loss and accuracy as .mat file
-        savemat(save_mat_path, {"acc": acc_history, "loss": loss_history, "num_epochs": num_epochs})
+        save_accuracy_and_loss_mat(save_mat_path, acc_history, loss_history, num_epochs)
     ## load model params from file
     else:
         state_dict = torch.load(save_model_path,
