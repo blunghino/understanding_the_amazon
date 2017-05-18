@@ -35,7 +35,7 @@ if __name__ == '__main__':
         dataset,
         batch_size=128,
         num_workers=0,
-        use_fraction_of_data=0.2,
+#        use_fraction_of_data=0.2,
     )
 
     ## 6 conv layers
@@ -74,10 +74,10 @@ if __name__ == '__main__':
 
     ## set up optimization including hyperparams
     lr = 1e-3
-    num_epochs = 7
+    num_epochs = 50
     loss_fn = nn.MultiLabelSoftMarginLoss().type(dtype)
     optimizer = optim.Adam(model.parameters(), lr=lr)
-    scheduler = ReduceLROnPlateau(optimizer, patience=0, verbose=1, factor=0.1, min_lr=0.00001*lr)
+    scheduler = ReduceLROnPlateau(optimizer, patience=0, cooldown=2, verbose=1, factor=0.1, min_lr=0.000001*lr)
 
     acc_history = []
     loss_history = []
