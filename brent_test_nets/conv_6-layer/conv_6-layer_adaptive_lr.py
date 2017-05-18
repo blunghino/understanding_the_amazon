@@ -136,7 +136,7 @@ if __name__ == '__main__':
         print("model loaded from {}".format(os.path.abspath(save_model_path)))
     ## generate predictions on test data set
     if run_test:
-        test_dataset = AmazonTestDataset(test_csv_path, test_img_path, img_ext, dtype)
+        test_dataset = AmazonTestDataset(csv_path, img_path, img_ext, dtype)
         test_loader = DataLoader(test_dataset, batch_size=batch_size, num_workers=num_workers)
         test_preds = test_model(model, test_loader, train_loader.dataset.mlb, dtype,
                                 out_file_name=test_results_csv_path)
