@@ -54,6 +54,7 @@ def train_epoch(loader_train, model, loss_fn, optimizer, dtype, print_every=20):
     `dtype` data type for variables
         eg torch.FloatTensor (cpu) or torch.cuda.FloatTensor (gpu)
     """
+    ## acc_history = []
     loss_history = []
     model.train()
     for t, (x, y) in enumerate(loader_train):
@@ -64,6 +65,8 @@ def train_epoch(loader_train, model, loss_fn, optimizer, dtype, print_every=20):
 
         loss = loss_fn(scores, y_var)
         loss_history.append(loss.data[0])
+
+        ## todo output training accuracy for each batch???
 
         if (t + 1) % print_every == 0:
             print('t = %d, loss = %.4f' % (t + 1, loss.data[0]))
@@ -89,7 +92,6 @@ def validate_epoch(model, loader, dtype):
     bs = loader.batch_size
     ## Put the model in test mode
     model.eval()
-    ## this for loop should be length 1 because the batch size should be equal to len(loader)
     for i, (x, y) in enumerate(loader):
         x_var = Variable(x.type(dtype), volatile=True)
 
@@ -103,3 +105,19 @@ def validate_epoch(model, loader, dtype):
         y_pred_array[i*bs:(i+1)*bs,:] = y_pred
 
     return f2_score(y_array, y_pred_array)
+
+def test_model(model, loader, dtype, n_classes=17):
+    y_pred_array = torch.zeros((len(loader.sampler), n_classes))
+    bs = loader.batch_size
+    ## Put the model in test mode
+    model.eval()
+    for i, x in enumerate(loader):
+        x_var = Variable(x.type(dtype), volatile=True)
+
+        scores = model(x_var)
+
+        y_pred = torch.sigmoid(scores).data > 0.5
+
+        y_pred_array[i*bs:(i+1)*bs,:] = y_pred
+
+    return y_pred_array
