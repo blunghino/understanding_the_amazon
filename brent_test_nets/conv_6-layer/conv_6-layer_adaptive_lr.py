@@ -46,7 +46,7 @@ if __name__ == '__main__':
     adaptive_lr_factor = 0.1 # scale lr by this factor
     ## whether to generate predictions on test
     run_test = True
-    test_csv_path = "../../data/sample_submission.csv"
+    test_csv_path = "../../data/sample_submission_v2.csv"
     test_img_path = "../../data/test-jpg"
     test_results_csv_path = "{}_results.csv".format(root)
     ############################################################################

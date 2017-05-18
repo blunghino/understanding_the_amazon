@@ -126,7 +126,7 @@ def test_model(model, loader, mlb, dtype, out_file_name="", n_classes=17):
         if i > 10:
             break
     ## generate labels from MultiLabelBinarizer
-    labels = mlb.inverse_transform(y_pred_array)
+    labels = mlb.inverse_transform(y_pred_array.numpy())
     ## write output file
     if out_file_name:
         with open(out_file_name, 'w', newline='') as csvfile:
@@ -137,8 +137,9 @@ def test_model(model, loader, mlb, dtype, out_file_name="", n_classes=17):
             for i in range(len(labels)):
                 str1=""
                 for j in range(n_classes):
-                    if(y_pred_array[i,j]==1):
-                        str1+=str(labels[j])+" "
+                    ## check if there is a label match
+                    if(y_pred_array[i,j] == 1):
+                        str1 += str(labels[j])+" "
                 writer.writerow({'image_name': file_names[i], 'tags': str1})
                 if i > 10:
                     break
