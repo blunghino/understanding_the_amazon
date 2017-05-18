@@ -6,7 +6,7 @@ some code from cs231n assignment 2 pytorch ipynb
 import torch
 from torch import np
 from torch.autograd import Variable
-
+import csv
 from loss import f2_score
 
 
@@ -108,16 +108,29 @@ def validate_epoch(model, loader, dtype):
 
 def test_model(model, loader, dtype, n_classes=17):
     y_pred_array = torch.zeros((len(loader.sampler), n_classes))
+    file_names=[]
     bs = loader.batch_size
     ## Put the model in test mode
     model.eval()
-    for i, x in enumerate(loader):
+    for i, (x,file_name) in enumerate(loader):
         x_var = Variable(x.type(dtype), volatile=True)
-
+        file_names.append(file_name)
         scores = model(x_var)
 
         y_pred = torch.sigmoid(scores).data > 0.5
 
         y_pred_array[i*bs:(i+1)*bs,:] = y_pred
 
+    labels=loader.dataset.mlb.inverse_transform(y_pred_array)
+    with open('solution.csv', 'w', newline='') as csvfile:
+        fieldnames = ['image_name', 'tags']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        writer.writeheader()
+        for i in range(len(labels)):
+            str1=""
+            for j in range(n_classes):
+                if(y_pred_array[i,j]==1):
+                    str1+=str(labels[j])+" "
+            writer.writerow({'image_name': file_names[i], 'tags': str1})
     return y_pred_array

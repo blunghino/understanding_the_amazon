@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.model_selection import train_test_split
 import torch
-from torch import np 
+from torch import np
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data.dataset import Dataset
@@ -19,14 +19,14 @@ class AmazonDataset(Dataset):
     """
     def __init__(self, csv_path, img_path, img_ext, dtype,
                  transform_list=[], three_band=False):
-    
+
         self.img_path = img_path
         self.img_ext = img_ext
         self.dtype = dtype
         self.three_band = three_band
 
         df = pd.read_csv(csv_path)
-        
+
         self.mlb = MultiLabelBinarizer()
         ## prepend other img transforms to this list
         transform_list += [transforms.ToTensor()]
@@ -97,7 +97,7 @@ class AmazonTestDataset(Dataset):
             img = np.asarray(img, dtype=np.int32)
 
         img = self.transforms(img)
-        return img
+        return img,self.X_train[index]
 
     def __len__(self):
         return len(self.X_train.index)
