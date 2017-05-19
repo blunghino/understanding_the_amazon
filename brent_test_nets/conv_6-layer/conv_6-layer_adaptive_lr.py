@@ -43,7 +43,7 @@ if __name__ == '__main__':
     use_fraction_of_data = 1 # 1 to train on full data set
     ## optimization hyperparams
     lr = 1e-3
-    num_epochs = 7
+    num_epochs = 10
     adaptive_lr_patience = 0 # scale lr after loss plateaus for "patience" epochs
     adaptive_lr_factor = 0.1 # scale lr by this factor
     ## whether to generate predictions on test
@@ -126,7 +126,7 @@ if __name__ == '__main__':
             train_acc_history += epoch_f2
             val_acc_history.append(f2_acc)
             loss_history += epoch_losses
-            print("END epoch {}/{}: F2 score = {:.02f}".format(epoch+1, num_epochs, acc))
+            print("END epoch {}/{}: validation F2 score = {:.02f}".format(epoch+1, num_epochs, f2_acc))
         ## serialize model data and save as .pkl file
         torch.save(model.state_dict(), save_model_path)
         print("model saved as {}".format(os.path.abspath(save_model_path)))
@@ -145,4 +145,4 @@ if __name__ == '__main__':
         test_loader = DataLoader(test_dataset, batch_size=batch_size, num_workers=num_workers)
         test_preds = test_model(model, test_loader, train_loader.dataset.mlb, dtype,
                                 out_file_name=test_results_csv_path)
-
+        print("test set results saved as {}".format(os.path.abspath(test_results_csv_path)))

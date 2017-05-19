@@ -71,7 +71,7 @@ def train_epoch(loader_train, model, loss_fn, optimizer, dtype, print_every=20):
         acc_history.append(acc)
 
         if (t + 1) % print_every == 0:
-            print('t = %d, loss = %.4f, f2 = %.4f' % (t + 1, loss.data[0], acc.data[0]))
+            print('t = %d, loss = %.4f, f2 = %.4f' % (t + 1, loss.data[0], acc))
 
         optimizer.zero_grad()
         loss.backward()
