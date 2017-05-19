@@ -10,10 +10,10 @@ def save_accuracy_and_loss_mat(save_mat_path, train_acc, val_acc, loss, num_epoc
 
 def plot_accuracy(train_acc, val_acc, num_epochs, figsize=(8,6)):
     fig = plt.figure(figsize=figsize)
-    t = np.arange(num_epochs) + 1
-    plt.plot(t, val_acc, label="Validation")
     t = np.linspace(0, num_epochs, len(train_acc))
     plt.plot(t, train_acc, label="Training")
+    t = np.arange(num_epochs) + 1
+    plt.plot(t, val_acc, label="Validation")
     plt.xlabel("Epoch")
     plt.ylabel("F2 Score")
     plt.legend()
