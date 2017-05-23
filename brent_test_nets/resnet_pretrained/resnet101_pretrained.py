@@ -46,9 +46,9 @@ if __name__ == '__main__':
     use_fraction_of_data = 1 # 1 to train on full data set
     ## optimization hyperparams
     lr_1 = 1e-3
-    num_epochs_1 = 3
+    num_epochs_1 = 4
     lr_2 = 5e-5
-    num_epochs_2 = 7
+    num_epochs_2 = 16
     adaptive_lr_patience = 0 # scale lr after loss plateaus for "patience" epochs
     adaptive_lr_factor = 0.1 # scale lr by this factor
     ## whether to generate predictions on test
@@ -125,7 +125,7 @@ if __name__ == '__main__':
 
         optimizer_2 = optim.Adam(model.parameters(), lr=lr_2)
         scheduler_2 = ReduceLROnPlateau(optimizer_2, patience=adaptive_lr_patience,
-                                          cooldown=2, verbose=1, min_lr=1e-5*lr_2,
+                                          cooldown=1, verbose=1, min_lr=1e-5*lr_2,
                                           factor=adaptive_lr_factor)
 
         train_acc_history_2 = []

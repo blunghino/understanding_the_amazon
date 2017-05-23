@@ -125,7 +125,7 @@ if __name__ == '__main__':
 
         optimizer_2 = optim.Adam(model.parameters(), lr=lr_2)
         scheduler_2 = ReduceLROnPlateau(optimizer_2, patience=adaptive_lr_patience,
-                                          cooldown=2, verbose=1, min_lr=1e-5*lr_2,
+                                          cooldown=1, verbose=1, min_lr=1e-5*lr_2,
                                           factor=adaptive_lr_factor)
 
         train_acc_history_2 = []
