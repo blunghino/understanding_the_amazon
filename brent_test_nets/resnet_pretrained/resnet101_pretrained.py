@@ -4,7 +4,7 @@ testing the basic setup of a model script using a model with two conv layers
 import sys
 import os.path
 
-from torchvision.models import resnet52
+from torchvision.models import resnet101
 import torchvision.transforms as T
 import torch
 import torch.nn as nn
@@ -85,7 +85,7 @@ if __name__ == '__main__':
     )
 
     ## pretrained resnet
-    model = resnet52(pretrained=True)
+    model = resnet101(pretrained=True)
     ## resize last fully connected layer to match our problem
     model.fc = nn.Linear(model.fc.in_features, 17)
     model.type(dtype)
