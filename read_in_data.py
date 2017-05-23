@@ -18,7 +18,8 @@ class AmazonDataset(Dataset):
     class to conform data to pytorch API
     """
     def __init__(self, csv_path, img_path, img_ext, dtype,
-                 transform_list=[], three_band=False):
+                 transform_list=[], three_band=False,
+                 channel_means=None, channel_stds=None):
 
         self.img_path = img_path
         self.img_ext = img_ext
@@ -30,6 +31,9 @@ class AmazonDataset(Dataset):
         self.mlb = MultiLabelBinarizer()
         ## prepend other img transforms to this list
         transform_list += [transforms.ToTensor()]
+        if channel_means is not None and channel_stds is not None:
+            transform_list += [transforms.Normalize(mean=channel_means,
+                                                    std=channel_stds)]
         self.transforms = transforms.Compose(transform_list)
         ## the paths to the images
         self.X_train = df['image_name']
@@ -64,7 +68,8 @@ class AmazonTestDataset(Dataset):
     class to conform data to pytorch API
     """
     def __init__(self, csv_path, img_path, img_ext, dtype,
-                 transform_list=[], three_band=False):
+                 transform_list=[], three_band=False,
+                 channel_means=None, channel_stds=None):
 
         self.img_path = img_path
         self.img_ext = img_ext
@@ -75,6 +80,9 @@ class AmazonTestDataset(Dataset):
 
         ## prepend other img transforms to this list
         transform_list += [transforms.ToTensor()]
+        if channel_means is not None and channel_stds is not None:
+            transform_list += [transforms.Normalize(mean=channel_means,
+                                                    std=channel_stds)]
         self.transforms = transforms.Compose(transform_list)
         ## the paths to the images
         self.X_train = df['image_name']

@@ -10,38 +10,6 @@ import csv
 from loss import f2_score
 
 
-def train(loader_train, model, loss_fn, optimizer, dtype,
-          num_epochs=1, print_every=1e5):
-    """
-    train `model` on data from `loader_train`
-
-    inputs:
-    `loader_train` object subclassed from torch.data.DataLoader
-    `model` neural net, subclassed from torch.nn.Module
-    `loss_fn` loss function see torch.nn for examples
-    `optimizer` subclassed from torch.optim.Optimizer
-    `dtype` data type for variables
-        eg torch.FloatTensor (cpu) or torch.cuda.FloatTensor (gpu)
-
-    from cs231n assignment 2
-    """
-    for epoch in range(num_epochs):
-        print('Starting epoch %d / %d' % (epoch + 1, num_epochs))
-        model.train()
-        for t, (x, y) in enumerate(loader_train):
-            x_var = Variable(x.type(dtype))
-            y_var = Variable(y.type(dtype))
-
-            scores = model(x_var)
-
-            loss = loss_fn(scores, y_var)
-            if (t + 1) % print_every == 0:
-                print('t = %d, loss = %.4f' % (t + 1, loss.data[0]))
-
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-
 def train_epoch(loader_train, model, loss_fn, optimizer, dtype, print_every=20):
     """
     train `model` on data from `loader_train` for one epoch
@@ -145,3 +113,35 @@ def test_model(model, loader, mlb, dtype, out_file_name="", n_classes=17):
                 writer.writerow({'image_name': file_names[i], 'tags': str1})
 
     return y_pred_array
+
+def train(loader_train, model, loss_fn, optimizer, dtype,
+          num_epochs=1, print_every=1e5):
+    """
+    train `model` on data from `loader_train`
+
+    inputs:
+    `loader_train` object subclassed from torch.data.DataLoader
+    `model` neural net, subclassed from torch.nn.Module
+    `loss_fn` loss function see torch.nn for examples
+    `optimizer` subclassed from torch.optim.Optimizer
+    `dtype` data type for variables
+        eg torch.FloatTensor (cpu) or torch.cuda.FloatTensor (gpu)
+
+    from cs231n assignment 2
+    """
+    for epoch in range(num_epochs):
+        print('Starting epoch %d / %d' % (epoch + 1, num_epochs))
+        model.train()
+        for t, (x, y) in enumerate(loader_train):
+            x_var = Variable(x.type(dtype))
+            y_var = Variable(y.type(dtype))
+
+            scores = model(x_var)
+
+            loss = loss_fn(scores, y_var)
+            if (t + 1) % print_every == 0:
+                print('t = %d, loss = %.4f' % (t + 1, loss.data[0]))
+
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
