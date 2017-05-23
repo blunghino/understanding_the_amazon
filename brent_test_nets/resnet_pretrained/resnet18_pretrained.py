@@ -42,17 +42,17 @@ if __name__ == '__main__':
     img_path = '../../data/train-jpg'
     img_ext = '.jpg'
     ## dataloader params
-    batch_size = 128
-    use_fraction_of_data = 0.1 # 1 to train on full data set
+    batch_size = 256
+    use_fraction_of_data = 1 # 1 to train on full data set
     ## optimization hyperparams
     lr_1 = 1e-3
-    num_epochs_1 = 3
+    num_epochs_1 = 4
     lr_2 = 1e-5
-    num_epochs_2 = 1
+    num_epochs_2 = 8
     adaptive_lr_patience = 0 # scale lr after loss plateaus for "patience" epochs
     adaptive_lr_factor = 0.1 # scale lr by this factor
     ## whether to generate predictions on test
-    run_test = False
+    run_test = True
     test_csv_path = "../../data/sample_submission_v2.csv"
     test_img_path = "../../data/test-jpg"
     test_results_csv_path = "{}_results.csv".format(root)
@@ -86,9 +86,9 @@ if __name__ == '__main__':
 
     ## pretrained resnet
     model = resnet18(pretrained=True)
-    model.type(dtype)
     ## resize last fully connected layer to match our problem
     model.fc = nn.Linear(model.fc.in_features, 17)
+    model.type(dtype)
 
     loss_fn = nn.MultiLabelSoftMarginLoss().type(dtype)
 
