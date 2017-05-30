@@ -33,9 +33,9 @@ class AmazonDataset(Dataset):
         ## prepend other img transforms to this list
         if use_flips:
             if self.img_ext == '.jpg':
-                transform_list += [random_flip_rotation]
+                transform_list += [random_flip_rotation_pil]
             elif self.img_ext == '.tif':
-                pass
+                transform_list += [random_flip_rotation_np]
         
         transform_list += [transforms.ToTensor()]
         if channel_means is not None and channel_stds is not None:
