@@ -40,8 +40,8 @@ if __name__ == '__main__':
     save_mat_path_fc = "{}_loss_and_acc_fc.mat".format(root)
     save_mat_path_tune = "{}_loss_and_acc_tune.mat".format(root)
     csv_path = '../../data/train_v2.csv'
-    img_path = '../../data/train-jpg'
-    img_ext = '.jpg'
+    img_path = '../../data/train-tif-v2'
+    img_ext = '.tif'
     ## dataloader params
     batch_size = 256
     use_fraction_of_data = 1 # 1 to train on full data set
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     num_epochs_1 = 4
     reg_1 = 0
     lr_2 = 1e-5
-    num_epochs_2 = 8
+    num_epochs_2 = 12
     reg_2 = 1e-4
     adaptive_lr_patience = 0 # scale lr after loss plateaus for "patience" epochs
     adaptive_lr_factor = 0.1 # scale lr by this factor
