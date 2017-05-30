@@ -1,23 +1,47 @@
 from PIL import Image
+from numpy.random import rand
 
-def generate_rotations(image):
-    out = []
-    im1 = image.rotate(90)
-    im2 = image.rotate(180)
-    im3 = image.rotate(270)
+# def generate_rotations(image):
+#     out = []
+#     im1 = image.rotate(90)
+#     im2 = image.rotate(180)
+#     im3 = image.rotate(270)
 
-    out.append(im1)
-    out.append(im2)
-    out.append(im3)
-    out.append(image.transpose(Image.FLIP_LEFT_RIGHT))
-    out.append(im1.transpose(Image.FLIP_LEFT_RIGHT))
-    out.append(im2.transpose(Image.FLIP_LEFT_RIGHT))
-    out.append(im3.transpose(Image.FLIP_LEFT_RIGHT))
+#     out.append(im1)
+#     out.append(im2)
+#     out.append(im3)
+#     out.append(image.transpose(Image.FLIP_LEFT_RIGHT))
+#     out.append(im1.transpose(Image.FLIP_LEFT_RIGHT))
+#     out.append(im2.transpose(Image.FLIP_LEFT_RIGHT))
+#     out.append(im3.transpose(Image.FLIP_LEFT_RIGHT))
 
-    return out
+#     return out
 
 
-if __name__ == '__main__':
-    original_image = Image.open("cat.jpg")
-    for i, image in enumerate(transforms(original_image)):
-        image.save('test' + str(i) + '.jpg')
+def random_flip_rotation(PIL_image):
+    ## Returns a random transformation (flip or rotation) of the image
+    rando = rand()
+    if rando < 0.25:
+        out_image = PIL_image
+    elif rando < 0.5:
+        out_image = PIL_image.rotate(90)
+    elif rando < 0.75:
+        out_image = PIL_image.rotate(180)
+    else:
+        out_image = PIL_image.rotate(270)
+
+    rando_2 = rand()
+    if rando_2 < 0.5:
+        out_image.transpose(Image.FLIP_LEFT_RIGHT)
+
+    return out_image
+
+
+
+# if __name__ == '__main__':
+#     original_image = Image.open("train_1.jpg")
+#     out = random_flip_rotation(original_image)
+#     out.save('test.jpg')
+
+#     # for i, image in enumerate(generate_rotations(original_image)):
+    #     image.save('test' + str(i) + '.jpg')
