@@ -50,7 +50,7 @@ if __name__ == '__main__':
     reg_1 = 0
     lr_2 = 5e-5
     num_epochs_2 = 16
-    reg_2 = 1e-4
+    reg_2 = 5e-4
     adaptive_lr_patience = 0 # scale lr after loss plateaus for "patience" epochs
     adaptive_lr_factor = 0.1 # scale lr by this factor
     ## whether to generate predictions on test
