@@ -42,13 +42,15 @@ if __name__ == '__main__':
     img_path = '../../data/train-jpg'
     img_ext = '.jpg'
     ## dataloader params
-    batch_size = 256
+    batch_size = 32
     use_fraction_of_data = 1 # 1 to train on full data set
     ## optimization hyperparams
     lr_1 = 1e-3
     num_epochs_1 = 4
+    reg_1 = 0
     lr_2 = 5e-5
     num_epochs_2 = 16
+    reg_2 = 1e-4
     adaptive_lr_patience = 0 # scale lr after loss plateaus for "patience" epochs
     adaptive_lr_factor = 0.1 # scale lr by this factor
     ## whether to generate predictions on test
@@ -101,7 +103,7 @@ if __name__ == '__main__':
         for param in model.fc.parameters():
             param.requires_grad = True
 
-        optimizer_1 = optim.Adam(model.fc.parameters(), lr=lr_1)
+        optimizer_1 = optim.Adam(model.fc.parameters(), lr=lr_1, weight_decay=reg_1)
 
         train_acc_history_1 = []
         val_acc_history_1 = []
@@ -123,7 +125,7 @@ if __name__ == '__main__':
         for param in model.parameters():
             param.requires_grad = True
 
-        optimizer_2 = optim.Adam(model.parameters(), lr=lr_2)
+        optimizer_2 = optim.Adam(model.parameters(), lr=lr_2, weight_decay=reg_2)
         scheduler_2 = ReduceLROnPlateau(optimizer_2, patience=adaptive_lr_patience,
                                           cooldown=1, verbose=1, min_lr=1e-5*lr_2,
                                           factor=adaptive_lr_factor)

@@ -48,8 +48,10 @@ if __name__ == '__main__':
     ## optimization hyperparams
     lr_1 = 1e-3
     num_epochs_1 = 4
+    reg_1 = 0
     lr_2 = 1e-5
     num_epochs_2 = 8
+    reg_2 = 1e-4
     adaptive_lr_patience = 0 # scale lr after loss plateaus for "patience" epochs
     adaptive_lr_factor = 0.1 # scale lr by this factor
     ## whether to generate predictions on test
@@ -69,8 +71,8 @@ if __name__ == '__main__':
 
     transform_list = [] # [T.Scale(224)]
 
-    IMAGENET_MEAN = [0.485, 0.456, 0.406] + [0.45]
-    IMAGENET_STD = [0.229, 0.224, 0.225] + [0.22]
+    IMAGENET_MEAN = [0.485, 0.456, 0.406] + [.456]
+    IMAGENET_STD = [0.229, 0.224, 0.225] + [.224]
 
     dataset = AmazonDataset(csv_path, img_path, img_ext, dtype,
                             transform_list=transform_list,
@@ -105,7 +107,8 @@ if __name__ == '__main__':
 
         optimizer_1 = optim.Adam(
             itertools.chain(model.fc.parameters(), model.conv1.parameters()),
-            lr=lr_1
+            lr=lr_1,
+            weight_decay=reg_1
         )
 
         train_acc_history_1 = []
@@ -128,7 +131,7 @@ if __name__ == '__main__':
         for param in model.parameters():
             param.requires_grad = True
 
-        optimizer_2 = optim.Adam(model.parameters(), lr=lr_2)
+        optimizer_2 = optim.Adam(model.parameters(), lr=lr_2, weight_decay=reg_2)
         scheduler_2 = ReduceLROnPlateau(optimizer_2, patience=adaptive_lr_patience,
                                           cooldown=1, verbose=1, min_lr=1e-5*lr_2,
                                           factor=adaptive_lr_factor)
