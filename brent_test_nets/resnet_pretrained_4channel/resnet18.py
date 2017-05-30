@@ -35,13 +35,13 @@ if __name__ == '__main__':
     ############################### SETTINGS ###################################
     ## only need to change things in this part of the code
 
-    root = "resnet18_pretrained" # name of model
+    root = "resnet18" # name of model
     save_model_path = "{}_state_dict.pkl".format(root)
     save_mat_path_fc = "{}_loss_and_acc_fc.mat".format(root)
     save_mat_path_tune = "{}_loss_and_acc_tune.mat".format(root)
     csv_path = '../../data/train_v2.csv'
-    img_path = '../../data/train-jpg'
-    img_ext = '.jpg'
+    img_path = '../../data/train-tif-v2'
+    img_ext = '.tif'
     ## dataloader params
     batch_size = 256
     use_fraction_of_data = 1 # 1 to train on full data set
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     num_epochs_1 = 4
     reg_1 = 0
     lr_2 = 1e-5
-    num_epochs_2 = 8
+    num_epochs_2 = 12
     reg_2 = 1e-4
     adaptive_lr_patience = 0 # scale lr after loss plateaus for "patience" epochs
     adaptive_lr_factor = 0.1 # scale lr by this factor
@@ -71,8 +71,8 @@ if __name__ == '__main__':
 
     transform_list = [] # [T.Scale(224)]
 
-    IMAGENET_MEAN = [0.485, 0.456, 0.406] + [.456]
-    IMAGENET_STD = [0.229, 0.224, 0.225] + [.224]
+    IMAGENET_MEAN = [0.485, 0.456, 0.406] + [1.5 * .456]
+    IMAGENET_STD = [0.229, 0.224, 0.225] + [2 * .224]
 
     dataset = AmazonDataset(csv_path, img_path, img_ext, dtype,
                             transform_list=transform_list,
@@ -114,7 +114,7 @@ if __name__ == '__main__':
         train_acc_history_1 = []
         val_acc_history_1 = []
         loss_history_1 = []
-        print("training final fully connected layer")
+        print("training first conv layer and final fully connected layer")
         for epoch in range(num_epochs_1):
             print("Begin epoch {}/{}".format(epoch+1, num_epochs_1))
             epoch_losses, epoch_f2 = train_epoch(train_loader, model, loss_fn,
@@ -143,7 +143,7 @@ if __name__ == '__main__':
         for epoch in range(num_epochs_2):
             print("Begin epoch {}/{}".format(epoch+1, num_epochs_2))
             epoch_losses, epoch_f2 = train_epoch(train_loader, model, loss_fn,
-                                                 optimizer_2, dtype, print_every=10)
+                                                 optimizer_2, dtype, print_every=50)
             scheduler_2.step(np.mean(epoch_losses), epoch)
             ## f2 score for validation dataset
             f2_acc = validate_epoch(model, val_loader, dtype)
@@ -171,7 +171,7 @@ if __name__ == '__main__':
     ## generate predictions on test data set
     if run_test:
         test_dataset = AmazonTestDataset(csv_path, img_path, img_ext, dtype,
-                        three_band=True, transform_list=transform_list,
+                        transform_list=transform_list,
                         channel_means=IMAGENET_MEAN, channel_stds=IMAGENET_STD)
         test_loader = DataLoader(test_dataset, batch_size=batch_size, num_workers=num_workers)
         test_preds = test_model(model, test_loader, train_loader.dataset.mlb, dtype,
