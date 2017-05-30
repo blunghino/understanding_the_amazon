@@ -171,7 +171,7 @@ if __name__ == '__main__':
     ## generate predictions on test data set
     if run_test:
         test_dataset = AmazonTestDataset(csv_path, img_path, img_ext, dtype,
-                        three_band=True, transform_list=transform_list,
+                        transform_list=transform_list,
                         channel_means=IMAGENET_MEAN, channel_stds=IMAGENET_STD)
         test_loader = DataLoader(test_dataset, batch_size=batch_size, num_workers=num_workers)
         test_preds = test_model(model, test_loader, train_loader.dataset.mlb, dtype,
