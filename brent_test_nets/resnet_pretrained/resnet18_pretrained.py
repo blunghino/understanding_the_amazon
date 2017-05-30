@@ -47,8 +47,10 @@ if __name__ == '__main__':
     ## optimization hyperparams
     lr_1 = 1e-3
     num_epochs_1 = 4
+    reg_1 = 0
     lr_2 = 1e-5
     num_epochs_2 = 8
+    reg_2 = 5e-4
     adaptive_lr_patience = 0 # scale lr after loss plateaus for "patience" epochs
     adaptive_lr_factor = 0.1 # scale lr by this factor
     ## whether to generate predictions on test
@@ -101,7 +103,7 @@ if __name__ == '__main__':
         for param in model.fc.parameters():
             param.requires_grad = True
 
-        optimizer_1 = optim.Adam(model.fc.parameters(), lr=lr_1)
+        optimizer_1 = optim.Adam(model.fc.parameters(), lr=lr_1, weight_decay=reg_1)
 
         train_acc_history_1 = []
         val_acc_history_1 = []
@@ -110,7 +112,7 @@ if __name__ == '__main__':
         for epoch in range(num_epochs_1):
             print("Begin epoch {}/{}".format(epoch+1, num_epochs_1))
             epoch_losses, epoch_f2 = train_epoch(train_loader, model, loss_fn,
-                                                 optimizer_1, dtype, print_every=10)
+                                                 optimizer_1, dtype, print_every=20)
             ## f2 score for validation dataset
             f2_acc = validate_epoch(model, val_loader, dtype)
             ## store results
@@ -123,7 +125,7 @@ if __name__ == '__main__':
         for param in model.parameters():
             param.requires_grad = True
 
-        optimizer_2 = optim.Adam(model.parameters(), lr=lr_2)
+        optimizer_2 = optim.Adam(model.parameters(), lr=lr_2, weight_decay=reg_2)
         scheduler_2 = ReduceLROnPlateau(optimizer_2, patience=adaptive_lr_patience,
                                           cooldown=1, verbose=1, min_lr=1e-5*lr_2,
                                           factor=adaptive_lr_factor)
@@ -135,7 +137,7 @@ if __name__ == '__main__':
         for epoch in range(num_epochs_2):
             print("Begin epoch {}/{}".format(epoch+1, num_epochs_2))
             epoch_losses, epoch_f2 = train_epoch(train_loader, model, loss_fn,
-                                                 optimizer_2, dtype, print_every=10)
+                                                 optimizer_2, dtype, print_every=20)
             scheduler_2.step(np.mean(epoch_losses), epoch)
             ## f2 score for validation dataset
             f2_acc = validate_epoch(model, val_loader, dtype)
