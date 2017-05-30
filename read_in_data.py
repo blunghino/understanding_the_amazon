@@ -20,7 +20,7 @@ class AmazonDataset(Dataset):
     """
     def __init__(self, csv_path, img_path, img_ext, dtype,
                  transform_list=[], three_band=False,
-                 channel_means=None, channel_stds=None):
+                 channel_means=None, channel_stds=None, use_flips=True):
 
         self.img_path = img_path
         self.img_ext = img_ext
@@ -31,7 +31,9 @@ class AmazonDataset(Dataset):
 
         self.mlb = MultiLabelBinarizer()
         ## prepend other img transforms to this list
-        transform_list += [random_flip_rotation]
+        if use_flips:
+            transform_list += [random_flip_rotation]
+        
         transform_list += [transforms.ToTensor()]
         if channel_means is not None and channel_stds is not None:
             transform_list += [transforms.Normalize(mean=channel_means,
