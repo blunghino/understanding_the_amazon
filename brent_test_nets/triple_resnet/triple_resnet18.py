@@ -93,8 +93,8 @@ if __name__ == '__main__':
 
         ## set up paths
         save_model_path = "{}_{}_state_dict.pkl".format(root, model_names[i])
-        save_mat_path_fc = "mat/{}_{}_data_fc.mat".format(root, model_names[i])
-        save_mat_path_tune = "mat/{}_{}_data_tune.mat".format(root, model_names[i])
+        save_mat_path_fc = "{}_{}_data_fc.mat".format(root, model_names[i])
+        save_mat_path_tune = "{}_{}_data_tune.mat".format(root, model_names[i])
 
         ## resize last fully connected layer to match our problem
         model.fc = nn.Linear(model.fc.in_features, 17)
