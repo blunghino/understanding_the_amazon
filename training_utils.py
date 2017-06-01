@@ -128,12 +128,15 @@ def test_triple_resnet(models, loaders, mlb, dtype, weights=(1,1,1),
     models[0].eval()
     models[1].eval()
     models[2].eval()
+    ## loop over the three models
     for i, (model, loader) in enumerate(zip(models, loaders)):
         for j, (x, file_name) in enumerate(loader):
             x_var = Variable(x.type(dtype), volatile=True)
             if i == 0:
                 file_names += list(file_name)
-            s[i,j*bs:(j+1)*bs,:] = model(x_var)
+            score_var = model(x_var)
+            ## store each set of scores
+            s[i,j*bs:(j+1)*bs,:] = score_var.data
 
     ## weighted average of scores from 3 models
     scores = (weights[0]*s[0,:,:] + weights[1]*s[1,:,:] + weights[2]*s[2,:,:]) / sum(weights)
