@@ -1,6 +1,8 @@
 from PIL import Image
 from numpy.random import rand
 
+from torch import np
+
 # def generate_rotations(image):
 #     out = []
 #     im1 = image.rotate(90)
@@ -18,7 +20,7 @@ from numpy.random import rand
 #     return out
 
 
-def random_flip_rotation(PIL_image):
+def random_flip_rotation_pil(PIL_image):
     ## Returns a random transformation (flip or rotation) of the image
     rando = rand()
     if rando < 0.25:
@@ -36,7 +38,23 @@ def random_flip_rotation(PIL_image):
 
     return out_image
 
+def random_flip_rotation_np(a):
+    ## Returns a random transformation (flip or rotation) of the image
+    rando = rand()
+    if rando < 0.25:
+        out_image = a
+    elif rando < 0.5:
+        out_image = np.rot90(a, k=1)
+    elif rando < 0.75:
+        out_image = np.rot90(a, k=2)
+    else:
+        out_image = np.rot90(a, k=3)
 
+    rando_2 = rand()
+    if rando_2 < 0.5:
+        out_image = np.fliplr(out_image)
+
+    return out_image
 
 # if __name__ == '__main__':
 #     original_image = Image.open("train_1.jpg")

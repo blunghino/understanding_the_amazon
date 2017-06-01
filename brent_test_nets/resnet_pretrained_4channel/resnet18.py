@@ -35,7 +35,7 @@ if __name__ == '__main__':
     ############################### SETTINGS ###################################
     ## only need to change things in this part of the code
 
-    root = "resnet18_pretrained" # name of model
+    root = "resnet18" # name of model
     save_model_path = "{}_state_dict.pkl".format(root)
     save_mat_path_fc = "{}_loss_and_acc_fc.mat".format(root)
     save_mat_path_tune = "{}_loss_and_acc_tune.mat".format(root)

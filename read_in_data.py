@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
-from augment_data import random_flip_rotation
+from augment_data import random_flip_rotation_pil, random_flip_rotation_np
 
 
 class AmazonDataset(Dataset):
@@ -32,7 +32,10 @@ class AmazonDataset(Dataset):
         self.mlb = MultiLabelBinarizer()
         ## prepend other img transforms to this list
         if use_flips:
-            transform_list += [random_flip_rotation]
+            if self.img_ext == '.jpg':
+                transform_list += [random_flip_rotation_pil]
+            elif self.img_ext == '.tif':
+                transform_list += [random_flip_rotation_np]
         
         transform_list += [transforms.ToTensor()]
         if channel_means is not None and channel_stds is not None:
