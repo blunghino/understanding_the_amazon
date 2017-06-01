@@ -14,6 +14,104 @@ from torchvision import transforms
 from augment_data import random_flip_rotation_pil, random_flip_rotation_np
 
 
+## constants
+IMAGENET_MEAN = [0.485, 0.456, 0.406]
+IMAGENET_STD = [0.229, 0.224, 0.225]
+
+
+class ResnetTrainDataset(Dataset):
+    """
+    class to load Amazon satellite data into pytorch for pretrained resnet
+    """
+    def __init__(self, csv_path, img_path, img_ext, dtype,):
+
+        self.img_path = img_path
+        self.img_ext = img_ext
+        self.dtype = dtype
+
+        df = pd.read_csv(csv_path)
+
+        self.mlb = MultiLabelBinarizer()
+
+        ## add all img transforms to this list
+        transform_list = [transforms.RandomSizedCrop(224)]
+        if self.img_ext == '.jpg':
+            transform_list += [random_flip_rotation_pil]
+        elif self.img_ext == '.tif':
+            transform_list += [random_flip_rotation_np]
+        transform_list += [transforms.ToTensor()]
+        transform_list += [transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)]
+        self.transforms = transforms.Compose(transform_list)
+
+        ## the paths to the images
+        self.X_train = df['image_name']
+        self.y_train = self.mlb.fit_transform(df['tags'].str.split()).astype(np.float32)
+
+    def __getitem__(self, index):
+        """
+        return X_train image and y_train index
+        """
+        img_str = self.X_train[index] + self.img_ext
+        load_path = os.path.join(self.img_path, img_str)
+        ## branching for different backends
+        if self.img_ext == '.jpg':
+            img = Image.open(load_path)
+        ## tifffile
+        elif self.img_ext == '.tif':
+            img = tifffile.imread(load_path)
+            img = np.asarray(img, dtype=np.int32)
+
+        img = self.transforms(img)
+        label = torch.from_numpy(self.y_train[index]).type(self.dtype)
+        return img, label
+
+    def __len__(self):
+        return len(self.X_train.index)
+
+class ResnetTestDataset(Dataset):
+    """
+    class to load test data for Resnet into pytorch
+    """
+    def __init__(self, csv_path, img_path, img_ext, dtype,):
+
+        self.img_path = img_path
+        self.img_ext = img_ext
+        self.dtype = dtype
+
+        df = pd.read_csv(csv_path)
+
+        self.mlb = MultiLabelBinarizer()
+
+        ## add all img transforms to this list
+        transform_list = [transforms.Scale(224)]
+        # transform_list = [transforms.CenterCrop(224)]
+        transform_list += [transforms.ToTensor()]
+        transform_list += [transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)]
+        self.transforms = transforms.Compose(transform_list)
+
+        ## the paths to the images
+        self.X_train = df['image_name']
+
+    def __getitem__(self, index):
+        """
+        return X_train image and y_train index
+        """
+        img_str = self.X_train[index] + self.img_ext
+        load_path = os.path.join(self.img_path, img_str)
+        ## branching for different backends
+        if self.img_ext == '.jpg':
+            img = Image.open(load_path)
+        ## tifffile
+        elif self.img_ext == '.tif':
+            img = tifffile.imread(load_path)
+            img = np.asarray(img, dtype=np.int32)
+
+        img = self.transforms(img)
+        return img, self.X_train[index]
+
+    def __len__(self):
+        return len(self.X_train.index)
+
 class AmazonDataset(Dataset):
     """
     class to conform data to pytorch API
