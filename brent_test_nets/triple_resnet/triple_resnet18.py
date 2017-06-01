@@ -38,10 +38,10 @@ if __name__ == '__main__':
     csv_path = '../../data/train_v2.csv'
     img_paths = [
         '../../data/train-jpg',
-        '../../data/train-jpg',
-        '../../data/train-jpg'
+        '../../data/train_inf',
+        '../../data/train_grad'
     ]
-    model_names = ['rgb', 'nir', 'grad']
+    model_names = ['rgb', 'inf', 'grad']
     img_ext = '.jpg'
     ## dataloader params
     batch_size = 256
@@ -60,8 +60,8 @@ if __name__ == '__main__':
     test_csv_path = "../../data/sample_submission_v2.csv"
     test_img_paths = [
         "../../data/test-jpg",
-        "../../data/test-jpg",
-        "../../data/test-jpg",
+        "../../data/test_inf",
+        "../../data/test_grad",
     ]
     test_results_csv_path = "{}_results.csv".format(root)
     ############################################################################
@@ -93,8 +93,8 @@ if __name__ == '__main__':
 
         ## set up paths
         save_model_path = "{}_{}_state_dict.pkl".format(root, model_names[i])
-        save_mat_path_fc = "{}_{}_data_fc.mat".format(root, model_names[i])
-        save_mat_path_tune = "{}_{}_data_tune.mat".format(root, model_names[i])
+        save_mat_path_fc = "mat/{}_{}_data_fc.mat".format(root, model_names[i])
+        save_mat_path_tune = "mat/{}_{}_data_tune.mat".format(root, model_names[i])
 
         ## resize last fully connected layer to match our problem
         model.fc = nn.Linear(model.fc.in_features, 17)

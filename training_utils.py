@@ -142,7 +142,7 @@ def test_triple_resnet(models, loaders, mlb, dtype, weights=(1,1,1),
     scores = (weights[0]*s[0,:,:] + weights[1]*s[1,:,:] + weights[2]*s[2,:,:]) / sum(weights)
 
     ## https://discuss.pytorch.org/t/calculating-accuracy-for-a-multi-label-classification-problem/2303
-    y_pred = torch.sigmoid(scores).data > sigmoid_threshold
+    y_pred = torch.sigmoid(scores) > sigmoid_threshold
 
     ## generate labels from MultiLabelBinarizer
     labels = mlb.inverse_transform(y_pred.numpy())
