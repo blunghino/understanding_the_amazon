@@ -32,8 +32,11 @@ if __name__ == '__main__':
         use_cuda = True
 
     ############################### SETTINGS ###################################
-    ## only need to change things in this part of the code
+    ## only need to change things in this part of the script
 
+    ## use this for customizing which models to retrain
+    # from_pickle = [1, 0, 0]
+    ## paths
     root = "triple_resnet18" # name of model
     csv_path = '../../data/train_v2.csv'
     img_paths = [
