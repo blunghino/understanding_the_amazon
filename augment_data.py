@@ -1,6 +1,7 @@
 from PIL import Image
-import numpy as np
 from numpy.random import rand
+
+from torch import np
 
 # def generate_rotations(image):
 #     out = []
