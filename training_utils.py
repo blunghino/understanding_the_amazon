@@ -10,7 +10,8 @@ import csv
 from loss import f2_score
 
 
-def train_epoch(loader_train, model, loss_fn, optimizer, dtype, print_every=20):
+def train_epoch(loader_train, model, loss_fn, optimizer, dtype,
+                sigmoid_threshold=None, print_every=20):
     """
     train `model` on data from `loader_train` for one epoch
 
@@ -34,7 +35,7 @@ def train_epoch(loader_train, model, loss_fn, optimizer, dtype, print_every=20):
         loss = loss_fn(scores, y_var)
         loss_history.append(loss.data[0])
 
-        y_pred = torch.sigmoid(scores).data > 0.5
+        y_pred = torch.sigmoid(scores).data > sigmoid_threshold
         acc = f2_score(y, y_pred)
         acc_history.append(acc)
 
@@ -47,7 +48,7 @@ def train_epoch(loader_train, model, loss_fn, optimizer, dtype, print_every=20):
 
     return loss_history, acc_history
 
-def validate_epoch(model, loader, dtype):
+def validate_epoch(model, loader, dtype, sigmoid_threshold=None):
     """
     validation for MultiLabelMarginLoss using f2 score
 
@@ -56,6 +57,8 @@ def validate_epoch(model, loader, dtype):
     `dtype` data type for variables
         eg torch.FloatTensor (cpu) or torch.cuda.FloatTensor (gpu)
     """
+    if sigmoid_threshold is None:
+        sigmoid_threshold = 0.5
     x, y = loader.dataset[0]
     y_array = torch.zeros((len(loader.sampler), y.size()[0]))
     y_pred_array = torch.zeros(y_array.size())
@@ -69,17 +72,20 @@ def validate_epoch(model, loader, dtype):
 
         ## these are the predicted classes
         ## https://discuss.pytorch.org/t/calculating-accuracy-for-a-multi-label-classification-problem/2303
-        y_pred = torch.sigmoid(scores).data > 0.5
+        y_pred = torch.sigmoid(scores).data > sigmoid_threshold
 
         y_array[i*bs:(i+1)*bs,:] = y
         y_pred_array[i*bs:(i+1)*bs,:] = y_pred
 
     return f2_score(y_array, y_pred_array)
 
-def test_model(model, loader, mlb, dtype, out_file_name="", n_classes=17):
+def test_model(model, loader, mlb, dtype, out_file_name="",
+               sigmoid_threshold=None, n_classes=17):
     """
     run the model on test data and generate a csv file for submission to kaggle
     """
+    if sigmoid_threshold is None:
+        sigmoid_threshold = 0.5
     y_pred_array = torch.zeros((len(loader.sampler), n_classes))
     file_names = []
     bs = loader.batch_size
@@ -91,7 +97,7 @@ def test_model(model, loader, mlb, dtype, out_file_name="", n_classes=17):
         scores = model(x_var)
 
         ## https://discuss.pytorch.org/t/calculating-accuracy-for-a-multi-label-classification-problem/2303
-        y_pred = torch.sigmoid(scores).data > 0.5
+        y_pred = torch.sigmoid(scores).data > sigmoid_threshold
         y_pred_array[i*bs:(i+1)*bs,:] = y_pred
 
     ## generate labels from MultiLabelBinarizer
@@ -116,10 +122,12 @@ def test_model(model, loader, mlb, dtype, out_file_name="", n_classes=17):
 
 
 def test_triple_resnet(models, loaders, mlb, dtype, weights=(1,1,1),
-                       out_file_name="", sigmoid_threshold=0.5, n_classes=17):
+                       out_file_name="", sigmoid_threshold=None, n_classes=17):
     """
     run 3 models on test data and generate a csv file for submission to kaggle
     """
+    if sigmoid_threshold is None:
+        sigmoid_threshold = 0.5
     ## store scores for all three models
     s = torch.zeros((3, len(loaders[0].sampler), n_classes))
     file_names = []
