@@ -57,7 +57,7 @@ if __name__ == '__main__':
     ## whether to generate predictions on test
     run_test = True
     test_csv_path = "../../data/sample_submission_v2.csv"
-    test_img_path = "../../data/test-jpg"
+    test_img_path = "../../data/test-tif-v2"
     test_results_csv_path = "{}_results.csv".format(root)
     ############################################################################
 
@@ -75,7 +75,7 @@ if __name__ == '__main__':
     IMAGENET_STD = [0.229, 0.224, 0.225] + [2 * .224]
 
     dataset = AmazonDataset(csv_path, img_path, img_ext, dtype,
-                            transform_list=transform_list,
+                            transform_list=transform_list, use_flips=False,
                             channel_means=IMAGENET_MEAN, channel_stds=IMAGENET_STD)
 
     train_loader, val_loader = generate_train_val_dataloader(
