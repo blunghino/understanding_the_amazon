@@ -32,8 +32,11 @@ if __name__ == '__main__':
         use_cuda = True
 
     ############################### SETTINGS ###################################
-    ## only need to change things in this part of the code
+    ## only need to change things in this part of the script
 
+    ## use this for customizing which models to retrain
+    # from_pickle = [1, 0, 0]
+    ## paths
     root = "triple_resnet18" # name of model
     csv_path = '../../data/train_v2.csv'
     img_paths = [
@@ -47,6 +50,7 @@ if __name__ == '__main__':
     batch_size = 256
     use_fraction_of_data = 1 # 1 to train on full data set
     ## optimization hyperparams
+    sigmoid_threshold = 0.25
     lr_1 = 1e-3
     num_epochs_1 = 3
     reg_1 = 0
@@ -126,9 +130,11 @@ if __name__ == '__main__':
                 ))
                 epoch_losses, epoch_f2 = train_epoch(train_loaders[i], model,
                                                      loss_fn, optimizer_1,
-                                                     dtype, print_every=20)
+                                                     dtype, print_every=20,
+                                                     sigmoid_threshold=sigmoid_threshold)
                 ## f2 score for validation dataset
-                f2_acc = validate_epoch(model, val_loaders[i], dtype)
+                f2_acc = validate_epoch(model, val_loaders[i], dtype,
+                                        sigmoid_threshold=sigmoid_threshold)
                 ## store results
                 train_acc_history_1 += epoch_f2
                 val_acc_history_1.append(f2_acc)
@@ -162,10 +168,12 @@ if __name__ == '__main__':
                 print("Begin epoch {}/{}".format(epoch+1, num_epochs_2))
                 epoch_losses, epoch_f2 = train_epoch(train_loaders[i], model,
                                                      loss_fn, optimizer_2,
-                                                     dtype, print_every=20)
+                                                     dtype, print_every=20,
+                                                     sigmoid_threshold=sigmoid_threshold)
                 scheduler_2.step(np.mean(epoch_losses), epoch)
                 ## f2 score for validation dataset
-                f2_acc = validate_epoch(model, val_loaders[i], dtype)
+                f2_acc = validate_epoch(model, val_loaders[i], dtype,
+                                        sigmoid_threshold=sigmoid_threshold)
                 ## store results
                 train_acc_history_2 += epoch_f2
                 val_acc_history_2.append(f2_acc)
@@ -206,6 +214,7 @@ if __name__ == '__main__':
         ## use three models to generate predictions
         test_preds = test_triple_resnet(models, test_loaders,
                                         train_loaders[0].dataset.mlb, dtype,
+                                        sigmoid_threshold=sigmoid_threshold,
                                         out_file_name=test_results_csv_path)
         print("test set results saved as {}".format(
                                         os.path.abspath(test_results_csv_path)))
