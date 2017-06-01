@@ -115,7 +115,51 @@ def test_model(model, loader, mlb, dtype, out_file_name="", n_classes=17):
     return y_pred_array
 
 
+def test_triple_resnet(models, loaders, mlb, dtype, weights=(1,1,1),
+                       out_file_name="", sigmoid_threshold=0.5, n_classes=17):
+    """
+    run 3 models on test data and generate a csv file for submission to kaggle
+    """
+    ## store scores for all three models
+    s = torch.zeros((3, len(loaders[0].sampler), n_classes))
+    file_names = []
+    bs = loaders[0].batch_size
+    ## Put the model in test mode
+    models[0].eval()
+    models[1].eval()
+    models[2].eval()
+    for i, (model, loader) in enumerate(zip(models, loaders)):
+        for j, (x, file_name) in enumerate(loader):
+            x_var = Variable(x.type(dtype), volatile=True)
+            if i == 0:
+                file_names += list(file_name)
+            s[i,j*bs:(j+1)*bs,:] = model(x_var)
 
+    ## weighted average of scores from 3 models
+    scores = (weights[0]*s[0,:,:] + weights[1]*s[1,:,:] + weights[2]*s[2,:,:]) / sum(weights)
+
+    ## https://discuss.pytorch.org/t/calculating-accuracy-for-a-multi-label-classification-problem/2303
+    y_pred = torch.sigmoid(scores).data > sigmoid_threshold
+
+    ## generate labels from MultiLabelBinarizer
+    labels = mlb.inverse_transform(y_pred.numpy())
+
+    ## write output file
+    if out_file_name:
+        with open(out_file_name, 'w', newline='') as csvfile:
+            fieldnames = ['image_name', 'tags']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+            writer.writeheader()
+            for i, labs in enumerate(labels):
+                str1 = ""
+                for lab in labs:
+                    ## check if there is a label match
+                    str1 += str(lab) + " "
+
+                writer.writerow({'image_name': file_names[i], 'tags': str1})
+
+    return y_pred
 
 def train(loader_train, model, loss_fn, optimizer, dtype,
           num_epochs=1, print_every=1e5):

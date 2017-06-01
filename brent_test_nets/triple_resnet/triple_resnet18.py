@@ -13,7 +13,7 @@ from torch import np
 
 from pytorch_addons.pytorch_lr_scheduler.lr_scheduler import ReduceLROnPlateau
 from training_utils import train_epoch, validate_epoch, test_triple_resnet
-from read_in_data import generate_train_val_dataloader, ResnetTrainDataset, ResnetTestDataset
+from read_in_data import triple_train_val_dataloaders, ResnetTrainDataset, ResnetTestDataset
 from plotting_tools import save_accuracy_and_loss_mat
 
 
@@ -45,13 +45,13 @@ if __name__ == '__main__':
     img_ext = '.jpg'
     ## dataloader params
     batch_size = 256
-    use_fraction_of_data = 1 # 1 to train on full data set
+    use_fraction_of_data = 0.01 # 1 to train on full data set
     ## optimization hyperparams
     lr_1 = 1e-3
-    num_epochs_1 = 4
+    num_epochs_1 = 1
     reg_1 = 0
     lr_2 = 1e-5
-    num_epochs_2 = 16
+    num_epochs_2 = 1
     reg_2 = 5e-4
     adaptive_lr_patience = 0 # scale lr after loss plateaus for "patience" epochs
     adaptive_lr_factor = 0.1 # scale lr by this factor
@@ -74,9 +74,9 @@ if __name__ == '__main__':
         dtype = torch.FloatTensor
         num_workers = 4
 
-    datasets = [ResnetTrainDataset(csv_path, ip, img_ext, dtype) for ip in img_paths]
+    datasets = [ResnetTrainDataset(csv_path, ip, dtype) for ip in img_paths]
 
-    train_loaders, val_loaders = triple_train_val_dataloader(
+    train_loaders, val_loaders = triple_train_val_dataloaders(
         datasets,
         batch_size=batch_size,
         num_workers=num_workers,
@@ -111,12 +111,13 @@ if __name__ == '__main__':
             for param in model.fc.parameters():
                 param.requires_grad = True
 
-            optimizer_1 = optim.Adam(model.fc.parameters(), lr=lr_1, weight_decay=reg_1)
+            optimizer_1 = optim.Adam(model.fc.parameters(), lr=lr_1,
+                                     weight_decay=reg_1)
 
             train_acc_history_1 = []
             val_acc_history_1 = []
             loss_history_1 = []
-            print("training {} final fully connected layer".format(model_names[i]))
+            print("training {} fully connected layer".format(model_names[i]))
             for epoch in range(num_epochs_1):
                 print("Begin {} epoch {}/{}".format(
                     model_names[i],
@@ -143,7 +144,8 @@ if __name__ == '__main__':
             for param in model.parameters():
                 param.requires_grad = True
 
-            optimizer_2 = optim.Adam(model.parameters(), lr=lr_2, weight_decay=reg_2)
+            optimizer_2 = optim.Adam(model.parameters(), lr=lr_2,
+                                     weight_decay=reg_2)
             scheduler_2 = ReduceLROnPlateau(
                 optimizer_2,
                 patience=adaptive_lr_patience,
@@ -177,7 +179,7 @@ if __name__ == '__main__':
             ## serialize model data and save as .pkl file
             torch.save(model.state_dict(), save_model_path)
             print("{} model saved as {}".format(model_names[i],
-                                                os.path.abspath(save_model_path)))
+                                            os.path.abspath(save_model_path)))
             ## save loss and accuracy as .mat file
             save_accuracy_and_loss_mat(save_mat_path_fc, train_acc_history_1,
                                        val_acc_history_1, loss_history_1,
@@ -192,12 +194,18 @@ if __name__ == '__main__':
                                     map_location=lambda storage, loc: storage)
             model.load_state_dict(state_dict)
             print("{} model loaded from {}".format(model_names[i],
-                                                   os.path.abspath(save_model_path)))
+                                            os.path.abspath(save_model_path)))
 
     ## generate predictions on test data set
     if run_test:
-        test_dataset = ResnetTestDataset(csv_path, img_path, img_ext, dtype)
-        test_loader = DataLoader(test_dataset, batch_size=batch_size, num_workers=num_workers)
-        test_preds = test_triple_resnet(models, test_loader, train_loader.dataset.mlb, dtype,
+        test_loaders = []
+        for ip in img_paths:
+            test_dataset = ResnetTestDataset(csv_path, ip, dtype)
+            test_loaders.append(DataLoader(test_dataset, batch_size=batch_size,
+                                           num_workers=num_workers))
+        ## use three models to generate predictions
+        test_preds = test_triple_resnet(models, test_loaders,
+                                        train_loaders[0].dataset.mlb, dtype,
                                         out_file_name=test_results_csv_path)
-        print("test set results saved as {}".format(os.path.abspath(test_results_csv_path)))
+        print("test set results saved as {}".format(
+                                        os.path.abspath(test_results_csv_path)))
