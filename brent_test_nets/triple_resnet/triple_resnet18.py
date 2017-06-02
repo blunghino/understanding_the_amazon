@@ -67,6 +67,7 @@ if __name__ == '__main__':
         "../../data/test_inf",
         "../../data/test_grad",
     ]
+    test_model_weights = (6., 1., 1.)
     test_results_csv_path = "{}_results.csv".format(root)
     ############################################################################
 
@@ -214,6 +215,7 @@ if __name__ == '__main__':
         ## use three models to generate predictions
         test_preds = test_triple_resnet(models, test_loaders,
                                         train_loaders[0].dataset.mlb, dtype,
+                                        weights=test_model_weights,
                                         sigmoid_threshold=sigmoid_threshold,
                                         out_file_name=test_results_csv_path)
         print("test set results saved as {}".format(

@@ -1,5 +1,7 @@
-- vector of thresholds
-- optimize sigmoid threshold on validation set
+- training plots for triple resnet
+
+- try f2 optimization on triple resnet output
+- set up optimization of weights on triple resnet
 
 - balance batch composition 
   - dictionary mapping classes to images having that class
