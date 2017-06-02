@@ -61,6 +61,7 @@ if __name__ == '__main__':
     adaptive_lr_factor = 0.1 # scale lr by this factor
     ## whether to generate predictions on test
     run_test = True
+    test_weights = (6, 1, 1)
     test_csv_path = "../../data/sample_submission_v2.csv"
     test_img_paths = [
         "../../data/test-jpg",
@@ -207,13 +208,14 @@ if __name__ == '__main__':
     ## generate predictions on test data set
     if run_test:
         test_loaders = []
-        for ip in img_paths:
-            test_dataset = ResnetTestDataset(csv_path, ip, dtype)
+        for ip in test_img_paths:
+            test_dataset = ResnetTestDataset(test_csv_path, ip, dtype)
             test_loaders.append(DataLoader(test_dataset, batch_size=batch_size,
                                            num_workers=num_workers))
         ## use three models to generate predictions
         test_preds = test_triple_resnet(models, test_loaders,
                                         train_loaders[0].dataset.mlb, dtype,
+                                        weights=test_weights,
                                         sigmoid_threshold=sigmoid_threshold,
                                         out_file_name=test_results_csv_path)
         print("test set results saved as {}".format(
