@@ -115,7 +115,6 @@ if __name__ == '__main__':
     model.load_state_dict(state_dict)
     print("model loaded from {}".format(os.path.abspath(save_model_path)))
     ## generate predictions on test data set
-    sig_thresh = dtype(17)
-    sig_thresh[:] = 0.25
+    sig_thresh = np.ones(17) * 0.25
     f2 = validate_epoch(model, val_loader, dtype, sigmoid_threshold=sig_thresh)
     print(f2)
