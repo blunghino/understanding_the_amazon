@@ -18,14 +18,13 @@ import cPickle as pickle
 
 def get_optimal_cutoffs(save_model_path, model_function, precision = 0.001, csv_path = 'data/train_v2.csv', img_path = 'data/train-jpg', img_ext = '.jpg', dtype = 'torch.cuda.FloatTensor', batch_size = 128, num_workers = 4, verbose = False):
 	## Load model
-	model = model_function(dtype)
+	model, dataset = model_function(csv_path, img_path, img_ext, dtype)
 	state_dict = torch.load(save_model_path,
 							map_location=lambda storage, loc: storage)
 	model.load_state_dict(state_dict)
 	print("model loaded from {}".format(os.path.abspath(save_model_path)))
 
 	## Generate Loader
-	dataset = AmazonDataset(csv_path, img_path, img_ext, dtype)
 	data_loader = DataLoader(
 		dataset,
 		batch_size=batch_size,
@@ -35,11 +34,11 @@ def get_optimal_cutoffs(save_model_path, model_function, precision = 0.001, csv_
 	thresholds = 0.5 * np.ones(17)
 	num_steps = int(np.ceil(np.log(precision/0.5) / np.log(0.5)))
 
-	# sig_scores_array, y_array = get_scores(model, data_loader, dtype, sigmoid_threshold=thresholds)
+	sig_scores_array, y_array = get_scores(model, data_loader, dtype, sigmoid_threshold=thresholds)
 	# pickle.dump(sig_scores_array, open( "sig_scores_array.pkl", "wb" ))
 	# pickle.dump(y_array, open( "y_array.pkl", "wb" ))
-	sig_scores_array = pickle.load(open( "sig_scores_array.pkl", "rb" ))
-	y_array = pickle.load(open( "y_array.pkl", "rb" ))
+	# sig_scores_array = pickle.load(open( "sig_scores_array.pkl", "rb" ))
+	# y_array = pickle.load(open( "y_array.pkl", "rb" ))
 
 	originalF2 = get_F2(sig_scores_array, y_array, thresholds)
 	for label_index in range(17):
@@ -117,7 +116,7 @@ def get_F2(sig_scores_array, y_array, sigmoid_threshold):
 	y_pred = torch.from_numpy(y_pred)
 	return f2_score(y_array, y_pred)
 
-def get_conv6_model(dtype):
+def get_conv6_model(csv_path, img_path, img_ext, dtype):
 	model = nn.Sequential(
 		## 256x256
 		nn.Conv2d(4, 16, kernel_size=3, stride=1),
@@ -151,21 +150,36 @@ def get_conv6_model(dtype):
 	)
 	model.type(dtype)
 
-	return model
+	dataset = AmazonDataset(csv_path, img_path, img_ext, dtype)
+
+	return model, dataset
 
 
-def get_resnet_model():
-	model = resnet101()
+def get_resnet_model(csv_path, img_path, img_ext, dtype):
+	from torchvision.models import resnet18
+	import torchvision.transforms as T
+	model = resnet18()
 	model.fc = nn.Linear(model.fc.in_features, 17)
-    model.type(dtype)
+	model.type(dtype)
 
-    return model
+	transform_list = [
+		T.Scale(224)
+	]
+
+	IMAGENET_MEAN = [0.485, 0.456, 0.406]
+	IMAGENET_STD = [0.229, 0.224, 0.225]
+
+	dataset = AmazonDataset(csv_path, img_path, img_ext, dtype,
+							transform_list=transform_list, three_band=True,
+							channel_means=IMAGENET_MEAN, channel_stds=IMAGENET_STD)
+
+	return model, dataset
 
 
 
 if __name__ == '__main__':
-	save_model_path = '/Users/brohr/Documents/Stanford/SecondYear/CS231n/FinalProject/understanding_the_amazon/conv_6-layer_state_dict.pkl'
-	print get_optimal_cutoffs(save_model_path, get_conv6_model, dtype = 'torch.FloatTensor', num_workers = 6)
+	save_model_path = 'resnet18_pretrained_state_dict.pkl'
+	print get_optimal_cutoffs(save_model_path, get_resnet_model, dtype = 'torch.FloatTensor', num_workers = 6)
 
 
 
