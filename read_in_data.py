@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
-from augment_data import random_flip_rotation_pil, random_flip_rotation_np
+from augment_data import random_flip_rotation
 
 
 ## constants
@@ -148,10 +148,7 @@ class AmazonDataset(Dataset):
         self.mlb = MultiLabelBinarizer()
         ## prepend other img transforms to this list
         if use_flips:
-            if self.img_ext == '.jpg':
-                transform_list += [random_flip_rotation_pil]
-            elif self.img_ext == '.tif':
-                transform_list += [random_flip_rotation_np]
+            transform_list += [random_flip_rotation]
         
         transform_list += [transforms.ToTensor()]
         if channel_means is not None and channel_stds is not None:
@@ -161,6 +158,7 @@ class AmazonDataset(Dataset):
         ## the paths to the images
         self.X_train = df['image_name']
         self.y_train = self.mlb.fit_transform(df['tags'].str.split()).astype(np.float32)
+        
 
     def __getitem__(self, index):
         """
@@ -239,6 +237,7 @@ def generate_train_val_dataloader(dataset, batch_size, num_workers,
     """
     return two Dataloaders split into training and validation
     `split` sets the train/val split fraction (0.9 is 90 % training data)
+    u
     """
     ## this is a testing feature to make epochs go faster, uses only some of the available data
     if use_fraction_of_data < 1.:
@@ -264,46 +263,25 @@ def generate_train_val_dataloader(dataset, batch_size, num_workers,
     )
     return train_loader, val_loader
 
-def triple_train_val_dataloaders(datasets, batch_size, num_workers,
-                                 shuffle=True, split=0.9,
-                                 use_fraction_of_data=1.):
-    """
-    generate three training and three validation dataloaders
-    to train triple resnet
-    """
-    ## this is a testing feature to make epochs go faster, uses only some of the available data
-    if use_fraction_of_data < 1.:
-        n_samples = int(use_fraction_of_data * len(datasets[0]))
-    else:
-        n_samples = len(datasets[0])
-    inds = np.arange(n_samples)
-    train_inds, val_inds = train_test_split(inds, test_size=1-split, train_size=split)
+def generate_label_index_dict(dataset):
+    mlb_matrix = np.array(dataset.y_train)
+    test_matrix = np.eye(17)
+    labels = dataset.mlb.inverse_transform(test_matrix)
+    labels = [label[0] for label in labels]
+    returndict = {}
+    for label in labels:
+        returndict[label] = np.array([])
 
-    train_loaders = []
-    val_loaders = []
+    for col_index, label in enumerate(labels):
+        col = mlb_matrix[:, col_index]
+        returndict[label] = np.where(col > 0)[0]
 
-    for dset in datasets:
-        train_loaders.append(DataLoader(
-            dset,
-            sampler=SubsetRandomSampler(train_inds),
-            batch_size=batch_size,
-            shuffle=shuffle,
-            num_workers=num_workers
-        ))
-        val_loaders.append(DataLoader(
-            dset,
-            sampler=SubsetRandomSampler(val_inds),
-            batch_size=batch_size,
-            shuffle=shuffle,
-            num_workers=num_workers
-        ))
-
-    return train_loaders, val_loaders
+    return returndict
 
 if __name__ == '__main__':
     csv_path = 'data/train_v2.csv'
-    img_path = 'data/train-jpg'
-    img_ext = '.jpg'
+    img_path = 'data/train-tif-sample'
+    img_ext = '.tif'
     dtype = torch.FloatTensor
     training_dataset = AmazonDataset(csv_path, img_path, dtype)
     train_loader = DataLoader(training_dataset, batch_size=20, num_workers=1)
@@ -311,3 +289,4 @@ if __name__ == '__main__':
         col_sum = y.sum(dim=1)
         print(col_sum.size())
         break
+
