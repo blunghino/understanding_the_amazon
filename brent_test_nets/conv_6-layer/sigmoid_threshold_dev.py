@@ -103,18 +103,27 @@ if __name__ == '__main__':
     )
     model.type(dtype)
 
-    ## set up optimization
-    loss_fn = nn.MultiLabelSoftMarginLoss().type(dtype)
-    optimizer = optim.Adam(model.parameters(), lr=lr)
-    scheduler = ReduceLROnPlateau(optimizer, patience=adaptive_lr_patience,
-                                  cooldown=2, verbose=1, min_lr=1e-5*lr,
-                                  factor=adaptive_lr_factor)
-
     state_dict = torch.load(save_model_path,
                             map_location=lambda storage, loc: storage)
     model.load_state_dict(state_dict)
     print("model loaded from {}".format(os.path.abspath(save_model_path)))
     ## generate predictions on test data set
     sig_thresh = np.ones(17) * 0.25
-    f2 = validate_epoch(model, val_loader, dtype, sigmoid_threshold=sig_thresh)
-    print(f2)
+
+    n_samples = len(val_loader.sampler)
+
+    x, y = val_loader.dataset[0]
+
+    bs = val_loader.batch_size
+    ## Put the model in test mode
+    model.eval()
+    for i, (x, y) in enumerate(loader):
+        x_var = Variable(x.type(dtype), volatile=True)
+
+        scores = model(x_var)
+
+        # y_pred = torch.sigmoid(scores).data.numpy() > sigmoid_threshold
+        #
+        # dataset.mlb.inverse_transform(y_pred)
+
+    return f2_score(torch.from_numpy(y_array), torch.from_numpy(y_pred_array))    print(f2)
