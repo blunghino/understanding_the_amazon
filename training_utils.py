@@ -11,7 +11,7 @@ from loss import f2_score
 
 
 def train_epoch(loader_train, model, loss_fn, optimizer, dtype,
-                sigmoid_threshold=None, print_every=20):
+                sigmoid_threshold=0.5, print_every=20):
     """
     train `model` on data from `loader_train` for one epoch
 
@@ -48,7 +48,7 @@ def train_epoch(loader_train, model, loss_fn, optimizer, dtype,
 
     return loss_history, acc_history
 
-def validate_epoch(model, loader, dtype, sigmoid_threshold=None):
+def validate_epoch(model, loader, dtype, sigmoid_threshold=0.5):
     """
     validation for MultiLabelMarginLoss using f2 score
 
@@ -58,11 +58,9 @@ def validate_epoch(model, loader, dtype, sigmoid_threshold=None):
         eg torch.FloatTensor (cpu) or torch.cuda.FloatTensor (gpu)
     """
     n_samples = len(loader.sampler)
-    if sigmoid_threshold is None:
-        sigmoid_threshold = 0.5
     x, y = loader.dataset[0]
-    y_array = np.zeros((n_samples, y.size()[0]))
-    y_pred_array = np.zeros(y_array.shape)
+    y_array = torch.zeros((n_samples, y.size()[0]))
+    y_pred_array = torch.zeros(y_array.shape)
     bs = loader.batch_size
     ## Put the model in test mode
     model.eval()
@@ -73,12 +71,12 @@ def validate_epoch(model, loader, dtype, sigmoid_threshold=None):
 
         ## these are the predicted classes
         ## https://discuss.pytorch.org/t/calculating-accuracy-for-a-multi-label-classification-problem/2303
-        y_pred = torch.sigmoid(scores).data.numpy() > sigmoid_threshold
+        y_pred = torch.sigmoid(scores).data > sigmoid_threshold
 
-        y_array[i*bs:(i+1)*bs,:] = y.numpy()
+        y_array[i*bs:(i+1)*bs,:] = y
         y_pred_array[i*bs:(i+1)*bs,:] = y_pred
 
-    return f2_score(torch.from_numpy(y_array), torch.from_numpy(y_pred_array))
+    return f2_score(y_array, y_pred_array)
 
 def test_model(model, loader, mlb, dtype, out_file_name="",
                sigmoid_threshold=None, n_classes=17):

@@ -70,7 +70,7 @@ if __name__ == '__main__':
         "../../data/test_inf",
         "../../data/test_grad",
     ]
-    test_model_weights = (6., 1., 1.)
+    test_model_weights = (24.6, 0.6, 5.2)
     test_results_csv_path = "{}_results.csv".format(root)
     ############################################################################
 
