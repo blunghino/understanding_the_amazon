@@ -12,8 +12,11 @@ from torch.utils.data import DataLoader
 from torch import np
 
 from pytorch_addons.pytorch_lr_scheduler.lr_scheduler import ReduceLROnPlateau
-from training_utils import train_epoch, validate_epoch, test_triple_resnet
-from read_in_data import triple_train_val_dataloaders, ResnetTrainDataset, ResnetTestDataset
+from training_utils import (train_epoch, validate_epoch, test_triple_resnet,
+                            get_triple_resnet_val_scores)
+from read_in_data import (triple_train_val_dataloaders, ResnetTrainDataset,
+                          ResnetTestDataset)
+from optimize_cutoffs import optimize_F2
 from plotting_tools import save_accuracy_and_loss_mat
 
 
@@ -48,7 +51,7 @@ if __name__ == '__main__':
     img_ext = '.jpg'
     ## dataloader params
     batch_size = 256
-    use_fraction_of_data = 1 # 1 to train on full data set
+    use_fraction_of_data = .01 # 1 to train on full data set
     ## optimization hyperparams
     sigmoid_threshold = 0.25
     lr_1 = 1e-3
@@ -61,13 +64,13 @@ if __name__ == '__main__':
     adaptive_lr_factor = 0.1 # scale lr by this factor
     ## whether to generate predictions on test
     run_test = True
-    test_weights = (6, 1, 1)
     test_csv_path = "../../data/sample_submission_v2.csv"
     test_img_paths = [
         "../../data/test-jpg",
         "../../data/test_inf",
         "../../data/test_grad",
     ]
+    test_model_weights = (6., 1., 1.)
     test_results_csv_path = "{}_results.csv".format(root)
     ############################################################################
 
@@ -207,6 +210,16 @@ if __name__ == '__main__':
 
     ## generate predictions on test data set
     if run_test:
+        ## first optize sigmoid thresholds
+        print("optimizing sigmoid cutoffs for each class")
+        sig_scores, y_array = get_triple_resnet_val_scores(models, val_loaders,
+                                                           dtype,
+                                                    weights=test_model_weights)
+        sigmoid_threshold = optimize_F2(sig_scores, y_array,
+                                        initial_threshold=sigmoid_threshold)
+        print("optimal thresholds: ", sigmoid_threshold)
+        
+        print("generating results for test dataset")
         test_loaders = []
         for ip in test_img_paths:
             test_dataset = ResnetTestDataset(test_csv_path, ip, dtype)
@@ -215,7 +228,7 @@ if __name__ == '__main__':
         ## use three models to generate predictions
         test_preds = test_triple_resnet(models, test_loaders,
                                         train_loaders[0].dataset.mlb, dtype,
-                                        weights=test_weights,
+                                        weights=test_model_weights,
                                         sigmoid_threshold=sigmoid_threshold,
                                         out_file_name=test_results_csv_path)
         print("test set results saved as {}".format(
