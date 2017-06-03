@@ -146,7 +146,10 @@ def test_triple_resnet(models, loaders, mlb, dtype, weights=(1,1,1),
                 file_names += list(file_name)
             score_var = model(x_var)
             ## store each set of scores
-            s[i,j*bs:(j+1)*bs,:] = score_var.data.numpy()
+            if dtype is torch.FloatTensor:
+                s[i,j*bs:(j+1)*bs,:] = score_var.data.numpy()
+            else:
+                s[i,j*bs:(j+1)*bs,:] = score_var.data.cpu().numpy()
 
     ## weighted average of scores from 3 models
     scores = (weights[0]*s[0,:,:] + weights[1]*s[1,:,:] + weights[2]*s[2,:,:]) / sum(weights)

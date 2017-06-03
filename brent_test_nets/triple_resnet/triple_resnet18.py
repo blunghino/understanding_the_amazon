@@ -215,8 +215,7 @@ if __name__ == '__main__':
         sig_scores, y_array = get_triple_resnet_val_scores(models, val_loaders,
                                                            dtype,
                                                     weights=test_model_weights)
-        sigmoid_threshold = optimize_F2(sig_scores, y_array,
-                                        initial_threshold=sigmoid_threshold)
+        sigmoid_threshold = optimize_F2(sig_scores, y_array)
         print("optimal thresholds: ", sigmoid_threshold)
 
         print("generating results for test dataset")
