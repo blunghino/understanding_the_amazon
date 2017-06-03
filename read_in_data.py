@@ -11,7 +11,8 @@ from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
-from augment_data import random_flip_rotation_pil, random_flip_rotation_np
+
+from augment_data import random_flip_rotation_pil
 
 
 ## constants
@@ -63,6 +64,33 @@ class ResnetTrainDataset(Dataset):
     def __len__(self):
         return len(self.X_train.index)
 
+class ResnetOptimizeDataset(ResnetTrainDataset):
+    """
+    class for optimizing weights and thresholds post training
+    """
+    def __init__(self, csv_path, img_path, dtype,):
+
+        self.img_path = img_path
+        self.dtype = dtype
+        self.img_ext = '.jpg'
+
+        df = pd.read_csv(csv_path)
+
+        self.mlb = MultiLabelBinarizer()
+
+        ## add all img transforms to this list
+        transform_list = [
+            transforms.Scale(224),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
+        ]
+        self.transforms = transforms.Compose(transform_list)
+
+        ## the paths to the images
+        self.X_train = df['image_name']
+        self.y_train = self.mlb.fit_transform(df['tags'].str.split()).astype(np.float32)
+
+
 class ResnetTestDataset(Dataset):
     """
     class to load test data for Resnet into pytorch
@@ -103,6 +131,34 @@ class ResnetTestDataset(Dataset):
     def __len__(self):
         return len(self.X_train.index)
 
+class ResnetOptimizeDataset(ResnetTrainDataset):
+    """
+    class for optimizing weights and thresholds post training
+    """
+    def __init__(self, csv_path, img_path, dtype,):
+
+        self.img_path = img_path
+        self.dtype = dtype
+        self.img_ext = '.jpg'
+
+        df = pd.read_csv(csv_path)
+
+        self.mlb = MultiLabelBinarizer()
+
+        ## add all img transforms to this list
+        transform_list = [
+            transforms.Scale(224),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
+        ]
+        self.transforms = transforms.Compose(transform_list)
+
+        ## the paths to the images
+        self.X_train = df['image_name']
+        self.y_train = self.mlb.fit_transform(df['tags'].str.split()).astype(np.float32)
+
+
+
 class AmazonDataset(Dataset):
     """
     class to conform data to pytorch API
@@ -121,11 +177,8 @@ class AmazonDataset(Dataset):
         self.mlb = MultiLabelBinarizer()
         ## prepend other img transforms to this list
         if use_flips:
-            if self.img_ext == '.jpg':
-                transform_list += [random_flip_rotation_pil]
-            elif self.img_ext == '.tif':
-                transform_list += [random_flip_rotation_np]
-        
+            transform_list += [random_flip_rotation_pil]
+
         transform_list += [transforms.ToTensor()]
         if channel_means is not None and channel_stds is not None:
             transform_list += [transforms.Normalize(mean=channel_means,
@@ -134,6 +187,8 @@ class AmazonDataset(Dataset):
         ## the paths to the images
         self.X_train = df['image_name']
         self.y_train = self.mlb.fit_transform(df['tags'].str.split()).astype(np.float32)
+
+
 
     def __getitem__(self, index):
         """
@@ -212,6 +267,7 @@ def generate_train_val_dataloader(dataset, batch_size, num_workers,
     """
     return two Dataloaders split into training and validation
     `split` sets the train/val split fraction (0.9 is 90 % training data)
+    u
     """
     ## this is a testing feature to make epochs go faster, uses only some of the available data
     if use_fraction_of_data < 1.:
@@ -236,6 +292,7 @@ def generate_train_val_dataloader(dataset, batch_size, num_workers,
         num_workers=num_workers
     )
     return train_loader, val_loader
+
 
 def triple_train_val_dataloaders(datasets, batch_size, num_workers,
                                  shuffle=True, split=0.9,
@@ -273,12 +330,21 @@ def triple_train_val_dataloaders(datasets, batch_size, num_workers,
 
     return train_loaders, val_loaders
 
+
 if __name__ == '__main__':
+    from balance_batch_dataloader import *
     csv_path = 'data/train_v2.csv'
     img_path = 'data/train-jpg'
     img_ext = '.jpg'
     dtype = torch.FloatTensor
-    training_dataset = ResnetTrainDataset(csv_path, img_path, dtype)
-    train_loader = generate_train_val_dataloader(training_dataset, 2, 1)[0]
+    training_dataset = ResnetOptimizeDataset(csv_path, img_path, dtype)
+    inds = np.arange(0, len(training_dataset), 2)
+    logical_inds = np.ones(len(training_dataset))
+    logical_inds[inds] = 0
+    bbs = BalanceSampler(training_dataset, logical_inds)
+    train_loader = BalanceDataLoader(training_dataset, sampler=bbs,
+                                               batch_size=32, num_workers=1)
     for t, (x, y) in enumerate(train_loader):
+        col_sum = y.sum(dim=0).numpy().flatten()
+        print(col_sum > 0)
         break

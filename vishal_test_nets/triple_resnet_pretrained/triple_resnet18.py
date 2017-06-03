@@ -10,15 +10,16 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch import np
-
+import torchvision.transforms as T
 from pytorch_addons.pytorch_lr_scheduler.lr_scheduler import ReduceLROnPlateau
 from training_utils import (train_epoch, validate_epoch, test_triple_resnet,
                             get_triple_resnet_val_scores)
 from read_in_data import (triple_train_val_dataloaders, ResnetTrainDataset,
-                          ResnetTestDataset)
+                          ResnetTestDataset,AmazonDataset,ResnetOptimizeDataset)
 from optimize_cutoffs import optimize_F2,get_F2
 from plotting_tools import save_accuracy_and_loss_mat
-from optimize_weights import get_scores
+from optimize_weights import get_scores, optimize_w
+from pyswarm import pso
 
 if __name__ == '__main__':
     ## command line arg to determine retraining vs loading model
@@ -51,7 +52,7 @@ if __name__ == '__main__':
     img_ext = '.jpg'
     ## dataloader params
     batch_size = 256
-    use_fraction_of_data = .01 # 1 to train on full data set
+    use_fraction_of_data = 0.1 # 1 to train on full data set
     ## optimization hyperparams
     sigmoid_threshold = 0.25
     lr_1 = 1e-3
@@ -82,13 +83,14 @@ if __name__ == '__main__':
         dtype = torch.FloatTensor
         num_workers = 4
 
-    datasets = [ResnetTrainDataset(csv_path, ip, dtype) for ip in img_paths]
+
+    datasets = [ResnetOptimizeDataset(csv_path, ip,  dtype) for ip in img_paths]
 
     train_loaders, val_loaders = triple_train_val_dataloaders(
         datasets,
         batch_size=batch_size,
         num_workers=num_workers,
-        use_fraction_of_data=use_fraction_of_data,
+        use_fraction_of_data=use_fraction_of_data,split=0.999
     )
 
     models = [
@@ -205,17 +207,23 @@ if __name__ == '__main__':
             state_dict = torch.load(save_model_path,
                                     map_location=lambda storage, loc: storage)
             model.load_state_dict(state_dict)
-            print("{} model loaded from {}".format(model_names[i],
-                                            os.path.abspath(save_model_path)))
+            #print("{} model loaded from {}".format(model_names[i],
+            #                               os.path.abspath(save_model_path)))
 
     ## generate predictions on test data set
     if run_test:
         s,y_array=get_scores(models, val_loaders, dtype)
-        Weights_all=[(6., 1., 1.)]
-        for weights in Weights_all:
-            scores = (weights[0]*s[0,:,:] + weights[1]*s[1,:,:] + weights[2]*s[2,:,:]) / sum(weights)
-            sig_scores = torch.sigmoid(torch.from_numpy(scores)).numpy()
-            sigmoid_threshold = optimize_F2(sig_scores, y_array,
-                                          initial_threshold=sigmoid_threshold)
-            F2=get_F2(sig_scores, y_array, sigmoid_threshold)
-            print(str(weights)+": "+str(F2))
+        weights=[6,1,1]
+        scores = (weights[0]*s[0,:,:] + weights[1]*s[1,:,:] + weights[2]*s[2,:,:]) / sum(weights)
+        sig_scores = torch.sigmoid(torch.from_numpy(scores)).numpy()
+        sigmoid_threshold = 0.5
+        F2=get_F2(sig_scores, y_array, sigmoid_threshold)
+
+        print(str(weights)+": "+str(F2))
+        print("Starting PSO")
+        lb = [1, 0, 1]
+        ub = [10, 1,4]
+        args = (s,y_array,sigmoid_threshold)
+        print(sigmoid_threshold)
+        weights, F2 = pso(optimize_w, lb, ub, args=args,maxiter=1000,debug=False,swarmsize=1000)
+        print(str(weights)+": "+str(-F2))

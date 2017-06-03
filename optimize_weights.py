@@ -3,6 +3,7 @@ from torch import np
 from torch.autograd import Variable
 import csv
 from loss import f2_score
+from optimize_cutoffs import optimize_F2,get_F2
 
 def get_scores(models, loaders, dtype,n_classes=17):
     s = np.zeros((3, len(loaders[0].sampler), n_classes))
@@ -22,3 +23,10 @@ def get_scores(models, loaders, dtype,n_classes=17):
             ## store each set of scores
             s[i,j*bs:(j+1)*bs,:] = score_var.data.numpy()
     return s,y_array
+
+def optimize_w(weights,*args):
+    s, y_array, sigmoid_threshold=args
+    scores = (weights[0]*s[0,:,:] + weights[1]*s[1,:,:] + weights[2]*s[2,:,:]) / sum(weights)
+    sig_scores = torch.sigmoid(torch.from_numpy(scores)).numpy()
+    F2=get_F2(sig_scores, y_array, sigmoid_threshold)
+    return -F2

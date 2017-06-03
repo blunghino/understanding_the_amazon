@@ -1,11 +1,6 @@
 - training plots for triple resnet
 
-- try f2 optimization on triple resnet output
-- set up optimization of weights on triple resnet
+- train triple with inf-three color image set with R-inf-B with balanced dataloader
 
-- balance batch composition 
-  - dictionary mapping classes to images having that class
-  - sampler that requires all classes be represented in each batch
-
-- replace inf-three color image set with R-inf-B
+- incorporate three resnets into one model that can learn weights and sum scores
 
