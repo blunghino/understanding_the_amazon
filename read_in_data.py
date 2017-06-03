@@ -130,6 +130,34 @@ class ResnetTestDataset(Dataset):
     def __len__(self):
         return len(self.X_train.index)
 
+class ResnetOptimizeDataset(ResnetTrainDataset):
+    """
+    class for optimizing weights and thresholds post training
+    """
+    def __init__(self, csv_path, img_path, dtype,):
+
+        self.img_path = img_path
+        self.dtype = dtype
+        self.img_ext = '.jpg'
+
+        df = pd.read_csv(csv_path)
+
+        self.mlb = MultiLabelBinarizer()
+
+        ## add all img transforms to this list
+        transform_list = [
+            transforms.Scale(224),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
+        ]
+        self.transforms = transforms.Compose(transform_list)
+
+        ## the paths to the images
+        self.X_train = df['image_name']
+        self.y_train = self.mlb.fit_transform(df['tags'].str.split()).astype(np.float32)
+
+
+
 class AmazonDataset(Dataset):
     """
     class to conform data to pytorch API
@@ -148,8 +176,8 @@ class AmazonDataset(Dataset):
         self.mlb = MultiLabelBinarizer()
         ## prepend other img transforms to this list
         if use_flips:
-            transform_list += [random_flip_rotation]
-        
+            transform_list += [random_flip_rotation_pil]
+
         transform_list += [transforms.ToTensor()]
         if channel_means is not None and channel_stds is not None:
             transform_list += [transforms.Normalize(mean=channel_means,
@@ -159,6 +187,7 @@ class AmazonDataset(Dataset):
         self.X_train = df['image_name']
         self.y_train = self.mlb.fit_transform(df['tags'].str.split()).astype(np.float32)
         
+
 
     def __getitem__(self, index):
         """
@@ -262,6 +291,21 @@ def generate_train_val_dataloader(dataset, batch_size, num_workers,
         num_workers=num_workers
     )
     return train_loader, val_loader
+
+def generate_label_index_dict(dataset):
+    mlb_matrix = np.array(dataset.y_train)
+    test_matrix = np.eye(17)
+    labels = dataset.mlb.inverse_transform(test_matrix)
+    labels = [label[0] for label in labels]
+    returndict = {}
+    for label in labels:
+        returndict[label] = np.array([])
+
+    for col_index, label in enumerate(labels):
+        col = mlb_matrix[:, col_index]
+        returndict[label] = np.where(col > 0)[0]
+
+    return returndict
 
 def generate_label_index_dict(dataset):
     mlb_matrix = np.array(dataset.y_train)
