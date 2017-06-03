@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 import torch
 from torch import np
 from torch.utils.data import DataLoader
-from torch.utils.data.sampler import SubsetRandomSampler, Sampler
+from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
 
@@ -262,26 +262,6 @@ class AmazonTestDataset(Dataset):
         return len(self.X_train.index)
 
 
-class BatchBalanceSampler(Sampler):
-    """
-    Samples elements randomly from a given list of indices, without replacement.
-
-    Arguments:
-        indices (list): a list of indices
-    """
-
-    def __init__(self, indices, class_dict):
-        self.indices = indices
-        self.class_dict = class_dict
-
-    def __iter__(self):
-        class_set = set(self.class_dict.keys())
-
-        return (self.indices[i] for i in torch.randperm(len(self.indices)))
-
-    def __len__(self):
-        return len(self.indices)
-
 def generate_train_val_dataloader(dataset, batch_size, num_workers,
                                   shuffle=True, split=0.9, use_fraction_of_data=1.):
     """
@@ -366,14 +346,16 @@ def triple_train_val_dataloaders(datasets, batch_size, num_workers,
 
 
 if __name__ == '__main__':
+    from balance_batch_dataloader import *
     csv_path = 'data/train_v2.csv'
     img_path = 'data/train-jpg'
     img_ext = '.jpg'
     dtype = torch.FloatTensor
     training_dataset = ResnetOptimizeDataset(csv_path, img_path, dtype)
     class_dict = generate_label_index_dict(training_dataset)
-    bbs = BatchBalanceSampler(train_inds, class_dict)
-    train_loader = DataLoader(training_dataset, sampler=bbs, batch_size=20, num_workers=1)
+    bbs = BalanceSampler(training_dataset, class_dict)
+    train_loader = BalanceDataLoader(training_dataset, sampler=bbs,
+                                               batch_size=32, num_workers=1)
     for t, (x, y) in enumerate(train_loader):
         col_sum = y.sum(dim=0).numpy().flatten()
         print(col_sum > 0)
