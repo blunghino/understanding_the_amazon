@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
-from augment_data import random_flip_rotation
+from augment_data import random_flip_rotation_pil
 
 
 ## constants
@@ -89,7 +89,7 @@ class ResnetOptimizeDataset(ResnetTrainDataset):
         self.X_train = df['image_name']
         self.y_train = self.mlb.fit_transform(df['tags'].str.split()).astype(np.float32)
 
-        
+
 class ResnetTestDataset(Dataset):
     """
     class to load test data for Resnet into pytorch
@@ -186,7 +186,7 @@ class AmazonDataset(Dataset):
         ## the paths to the images
         self.X_train = df['image_name']
         self.y_train = self.mlb.fit_transform(df['tags'].str.split()).astype(np.float32)
-        
+
 
 
     def __getitem__(self, index):
@@ -341,7 +341,7 @@ def triple_train_val_dataloaders(datasets, batch_size, num_workers,
             num_workers=num_workers
         ))
 
-return train_loaders, val_loaders
+    return train_loaders, val_loaders
 
 if __name__ == '__main__':
     csv_path = 'data/train_v2.csv'
@@ -354,4 +354,3 @@ if __name__ == '__main__':
         col_sum = y.sum(dim=1)
         print(col_sum.size())
         break
-
