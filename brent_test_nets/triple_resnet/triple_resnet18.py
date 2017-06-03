@@ -13,7 +13,9 @@ from torch import np
 
 from pytorch_addons.pytorch_lr_scheduler.lr_scheduler import ReduceLROnPlateau
 from training_utils import train_epoch, validate_epoch, test_triple_resnet
-from read_in_data import triple_train_val_dataloaders, ResnetTrainDataset, ResnetTestDataset
+from read_in_data import (triple_train_val_dataloaders, ResnetTrainDataset,
+                          ResnetTestDataset)
+from optimize_cutoffs import get_optimal_cutoffs
 from plotting_tools import save_accuracy_and_loss_mat
 
 
@@ -207,6 +209,8 @@ if __name__ == '__main__':
 
     ## generate predictions on test data set
     if run_test:
+        ## first optize sigmoid thresholds
+        thresholds = get_optimal_cutoffs()
         test_loaders = []
         for ip in img_paths:
             test_dataset = ResnetTestDataset(csv_path, ip, dtype)

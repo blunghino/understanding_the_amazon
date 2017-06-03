@@ -11,34 +11,16 @@ from torch.autograd import Variable
 from loss import f2_score
 
 
-def get_optimal_cutoffs(save_model_path, model_function, scores_function,
-                        precision=0.001,
-                        csv_path='data/train_v2.csv', img_path='data/train-jpg',
-                        img_ext='.jpg', dtype='torch.cuda.FloatTensor',
-                        batch_size=128, num_workers=4, verbose=False):
-    ## Load model
-    model, dataset = model_function(csv_path, img_path, img_ext, dtype)
-    state_dict = torch.load(save_model_path,
-                            map_location=lambda storage, loc: storage)
-    model.load_state_dict(state_dict)
-    print("model loaded from {}".format(os.path.abspath(save_model_path)))
-
-    ## Generate Loader
-    data_loader = DataLoader(dataset, batch_size=batch_size,
-        num_workers=num_workers)
-
-    thresholds = 0.5 * np.ones(17)
+def optimize_F2(sig_scores, y, precision=0.001, verbose=False,
+                initial_threshold=0.25):
+    """
+    given sigmoid scores and correct labels, optimize the sigmoid thresholds
+    to get the highest F2 score
+    """
+    thresholds = initial_threshold * np.ones(17)
     num_steps = int(np.ceil(np.log(precision / 0.5) / np.log(0.5)))
 
-    sig_scores_array, y_array = scores_function(model, data_loader, dtype,
-                                           sigmoid_threshold=thresholds)
-
-    # pickle.dump(sig_scores_array, open( "sig_scores_array.pkl", "wb" ))
-    # pickle.dump(y_array, open( "y_array.pkl", "wb" ))
-    # sig_scores_array = pickle.load(open( "sig_scores_array.pkl", "rb" ))
-    # y_array = pickle.load(open( "y_array.pkl", "rb" ))
-
-    originalF2 = get_F2(sig_scores_array, y_array, thresholds)
+    originalF2 = get_F2(sig_scores, y, thresholds)
 
     for label_index in range(17):
         if verbose:
@@ -52,10 +34,10 @@ def get_optimal_cutoffs(save_model_path, model_function, scores_function,
                       thresholds[label_index])
                 print('step', step)
 
-            increased_thersholds = deepcopy(thresholds)
-            increased_thersholds[label_index] += step_size
+            increased_thresholds = deepcopy(thresholds)
+            increased_thresholds[label_index] += step_size
             f2_increased = get_F2(sig_scores_array, y_array,
-                                  increased_thersholds)
+                                  increased_thresholds)
 
             if verbose:
                 print('F2 score if increased: ', f2_increased)
@@ -71,7 +53,7 @@ def get_optimal_cutoffs(save_model_path, model_function, scores_function,
             if f2_increased > f2_decreased:
                 if verbose:
                     print('increasing by ', step_size)
-                thresholds = deepcopy(increased_thersholds)
+                thresholds = deepcopy(increased_thresholds)
             else:
                 if verbose:
                     print('decreasing by ', step_size)
@@ -82,6 +64,31 @@ def get_optimal_cutoffs(save_model_path, model_function, scores_function,
     finalF2 = get_F2(sig_scores_array, y_array, thresholds)
     print('Original F2: ', originalF2, '\nFinal F2: ', finalF2)
     return thresholds
+
+def get_optimal_cutoffs(save_model_path, model_function,
+                        precision=0.001,
+                        csv_path='data/train_v2.csv', img_path='data/train-jpg',
+                        img_ext='.jpg', dtype='torch.cuda.FloatTensor',
+                        batch_size=128, num_workers=4, verbose=False):
+    """
+    load a model and dataset, generate sigmoid scores, and call optimizer to
+    return sigmoid thresholds
+    """
+    ## Load model
+    model, dataset = model_function(csv_path, img_path, img_ext, dtype)
+    state_dict = torch.load(save_model_path,
+                            map_location=lambda storage, loc: storage)
+    model.load_state_dict(state_dict)
+    print("model loaded from {}".format(os.path.abspath(save_model_path)))
+
+    ## Generate Loader
+    data_loader = DataLoader(dataset, batch_size=batch_size,
+        num_workers=num_workers)
+
+    sig_scores_array, y_array = get_scores(model, data_loader, dtype)
+
+    return optimize_F2(sig_scores_array, y_array,
+                       precision=precision, verbose=verbose)
 
 
 def get_scores(model, loader, dtype):
@@ -101,9 +108,6 @@ def get_scores(model, loader, dtype):
 
         scores = model(x_var)
 
-        ## these are the predicted classes
-        ## https://discuss.pytorch.org/t/calculating-accuracy-for-a-multi-label-classification-problem/2303
-        # y_pred = torch.sigmoid(scores).data.numpy() > sigmoid_threshold
         
         if dtype == 'torch.cuda.FloatTensor':
             sig_scores = torch.sigmoid(scores).data.cpu().numpy()
@@ -118,11 +122,14 @@ def get_scores(model, loader, dtype):
         else:
             print('dtype ' + dtype + ' not supported')
 
-    # return f2_score(torch.from_numpy(y_array), torch.from_numpy(y_pred_array))
     return sig_scores_array, y_array
 
 
 def get_F2(sig_scores_array, y_array, sigmoid_threshold):
+    """
+    given sigmoid scores and correct labels,
+    use sigmoid threshold to generate predictions and calc F2 score
+    """
     y_pred = 1.*(sig_scores_array > sigmoid_threshold)
     y_array = torch.from_numpy(y_array)
     y_pred = torch.from_numpy(y_pred)
@@ -183,17 +190,16 @@ def get_resnet_model(csv_path, img_path, img_ext, dtype):
                             transform_list=transform_list, three_band=True,
                             channel_means=IMAGENET_MEAN,
                             channel_stds=IMAGENET_STD)
-
-
     return model, dataset
 
 
 if __name__ == '__main__':
     save_model_path = 'resnet18_pretrained_state_dict.pkl'
     model_function = get_resnet_model
-    print(get_optimal_cutoffs(save_model_path, model_function, precision = 0.001,
+    print(get_optimal_cutoffs(save_model_path, model_function,
+                              precision = 0.001,
                               csv_path = 'data/train_v2.csv',
                               img_path = 'data/train-jpg', img_ext = '.jpg',
-                              dtype = 'torch.cuda.FloatTensor', batch_size = 64,
-                              num_workers = 0, verbose = False))
+                              dtype = 'torch.FloatTensor', batch_size = 64,
+                              num_workers = 4, verbose = True))
 
