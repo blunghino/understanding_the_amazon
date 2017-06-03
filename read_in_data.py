@@ -307,20 +307,41 @@ def generate_label_index_dict(dataset):
 
     return returndict
 
-def generate_label_index_dict(dataset):
-    mlb_matrix = np.array(dataset.y_train)
-    test_matrix = np.eye(17)
-    labels = dataset.mlb.inverse_transform(test_matrix)
-    labels = [label[0] for label in labels]
-    returndict = {}
-    for label in labels:
-        returndict[label] = np.array([])
+def triple_train_val_dataloaders(datasets, batch_size, num_workers,
+                                 shuffle=True, split=0.9,
+                                 use_fraction_of_data=1.):
+    """
+    generate three training and three validation dataloaders
+    to train triple resnet
+    """
+    ## this is a testing feature to make epochs go faster, uses only some of the available data
+    if use_fraction_of_data < 1.:
+        n_samples = int(use_fraction_of_data * len(datasets[0]))
+    else:
+        n_samples = len(datasets[0])
+    inds = np.arange(n_samples)
+    train_inds, val_inds = train_test_split(inds, test_size=1-split, train_size=split)
 
-    for col_index, label in enumerate(labels):
-        col = mlb_matrix[:, col_index]
-        returndict[label] = np.where(col > 0)[0]
+    train_loaders = []
+    val_loaders = []
 
-    return returndict
+    for dset in datasets:
+        train_loaders.append(DataLoader(
+            dset,
+            sampler=SubsetRandomSampler(train_inds),
+            batch_size=batch_size,
+            shuffle=shuffle,
+            num_workers=num_workers
+        ))
+        val_loaders.append(DataLoader(
+            dset,
+            sampler=SubsetRandomSampler(val_inds),
+            batch_size=batch_size,
+            shuffle=shuffle,
+            num_workers=num_workers
+        ))
+
+return train_loaders, val_loaders
 
 if __name__ == '__main__':
     csv_path = 'data/train_v2.csv'
