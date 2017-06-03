@@ -11,7 +11,7 @@ from torch.autograd import Variable
 from loss import f2_score
 
 
-def optimize_F2(sig_scores, y, precision=0.001, verbose=False,
+def optimize_F2(sig_scores_array, y_array, precision=0.001, verbose=False,
                 initial_threshold=0.5):
     """
     given sigmoid scores and correct labels, optimize the sigmoid thresholds
@@ -20,7 +20,7 @@ def optimize_F2(sig_scores, y, precision=0.001, verbose=False,
     thresholds = initial_threshold * np.ones(17)
     num_steps = int(np.ceil(np.log(precision / 0.5) / np.log(0.5)))
 
-    originalF2 = get_F2(sig_scores, y, thresholds)
+    originalF2 = get_F2(sig_scores_array, y_array, thresholds)
 
     for label_index in range(17):
         if verbose:
@@ -108,7 +108,7 @@ def get_scores(model, loader, dtype):
 
         scores = model(x_var)
 
-        
+
         if dtype == 'torch.cuda.FloatTensor':
             sig_scores = torch.sigmoid(scores).data.cpu().numpy()
 
@@ -202,4 +202,3 @@ if __name__ == '__main__':
                               img_path = 'data/train-jpg', img_ext = '.jpg',
                               dtype = 'torch.FloatTensor', batch_size = 64,
                               num_workers = 4, verbose = True))
-
