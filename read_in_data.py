@@ -63,6 +63,33 @@ class ResnetTrainDataset(Dataset):
     def __len__(self):
         return len(self.X_train.index)
 
+class ResnetOptimizeDataset(ResnetTrainDataset):
+    """
+    class for optimizing weights and thresholds post training
+    """
+    def __init__(self, csv_path, img_path, dtype,):
+
+        self.img_path = img_path
+        self.dtype = dtype
+        self.img_ext = '.jpg'
+
+        df = pd.read_csv(csv_path)
+
+        self.mlb = MultiLabelBinarizer()
+
+        ## add all img transforms to this list
+        transform_list = [
+            transforms.Scale(224),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
+        ]
+        self.transforms = transforms.Compose(transform_list)
+
+        ## the paths to the images
+        self.X_train = df['image_name']
+        self.y_train = self.mlb.fit_transform(df['tags'].str.split()).astype(np.float32)
+
+        
 class ResnetTestDataset(Dataset):
     """
     class to load test data for Resnet into pytorch
@@ -278,7 +305,9 @@ if __name__ == '__main__':
     img_path = 'data/train-jpg'
     img_ext = '.jpg'
     dtype = torch.FloatTensor
-    training_dataset = ResnetTrainDataset(csv_path, img_path, dtype)
-    train_loader = generate_train_val_dataloader(training_dataset, 2, 1)[0]
+    training_dataset = AmazonDataset(csv_path, img_path, dtype)
+    train_loader = DataLoader(training_dataset, batch_size=20, num_workers=1)
     for t, (x, y) in enumerate(train_loader):
+        col_sum = y.sum(dim=1)
+        print(col_sum.size())
         break

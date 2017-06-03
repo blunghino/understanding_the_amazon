@@ -212,9 +212,12 @@ if __name__ == '__main__':
     if run_test:
         ## first optize sigmoid thresholds
         print("optimizing sigmoid cutoffs for each class")
-        sig_scores, y_array = get_triple_resnet_val_scores(models, val_loaders,
-                                                           dtype,
-                                                    weights=test_model_weights)
+        sig_scores, y_array = get_triple_resnet_val_scores(
+                                models,
+                                train_loaders,
+                                dtype,
+                                weights=test_model_weights
+                            )
         sigmoid_threshold = optimize_F2(sig_scores, y_array)
         print("optimal thresholds: ", sigmoid_threshold)
 
