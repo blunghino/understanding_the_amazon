@@ -281,5 +281,4 @@ if __name__ == '__main__':
     training_dataset = ResnetTrainDataset(csv_path, img_path, dtype)
     train_loader = generate_train_val_dataloader(training_dataset, 2, 1)[0]
     for t, (x, y) in enumerate(train_loader):
-        print(x.size())
         break

@@ -11,13 +11,13 @@ from torch.autograd import Variable
 from loss import f2_score
 
 
-def optimize_F2(sig_scores_array, y_array, precision=0.001, verbose=False,
-                initial_threshold=0.5):
+def optimize_F2(sig_scores_array, y_array, precision=0.001, verbose=False):
     """
     given sigmoid scores and correct labels, optimize the sigmoid thresholds
     to get the highest F2 score
     """
-    thresholds = initial_threshold * np.ones(17)
+    ## algorithm depends on 0.5 initial threshold
+    thresholds = 0.5 * np.ones(17)
     num_steps = int(np.ceil(np.log(precision / 0.5) / np.log(0.5)))
 
     originalF2 = get_F2(sig_scores_array, y_array, thresholds)
