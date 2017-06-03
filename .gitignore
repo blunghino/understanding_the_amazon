@@ -1,4 +1,5 @@
 *.gz
+*.mat
 *.pkl
 *.pyc
 .idea

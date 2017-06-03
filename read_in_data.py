@@ -12,6 +12,7 @@ from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
 
+from balance_batch_dataloader import BalanceSampler, BalanceDataLoader
 from augment_data import random_flip_rotation_pil
 
 
@@ -330,9 +331,54 @@ def triple_train_val_dataloaders(datasets, batch_size, num_workers,
 
     return train_loaders, val_loaders
 
+def triple_train_val_balance_dataloaders(datasets, batch_size, num_workers,
+                                         shuffle=True, split=0.9,
+                                         use_fraction_of_data=1.):
+    """
+    generate three training and three validation dataloaders
+    to train triple resnet
+    """
+    n_samples = len(datasets[0])
+    ## set up train val split
+    inds = np.arange(n_samples)
+    train_inds, val_inds = train_test_split(inds, test_size=1-split, train_size=split)
+    ## logical indexing to use with BalanceSampler
+    log_train_inds = np.zeros(n_samples)
+    log_train_inds[train_inds] = 1
+    log_val_inds = np.zeros(n_samples)
+    log_val_inds[val_inds] = 1
+    ## reduce the size of your dataset (use for testing only)
+    if use_fraction_of_data < 1:
+        train_idx = int(np.ceil(use_fraction_of_data * split * n_samples))
+        val_idx = int(np.ceil(use_fraction_of_data * (1-split) * n_samples))
+        log_train_inds[train_idx:] = 0
+        log_val_inds[val_idx:] = 0
+
+    train_loaders = []
+    val_loaders = []
+
+    for dset in datasets:
+        train_loaders.append(BalanceDataLoader(
+            dset,
+            sampler=BalanceSampler(dset, log_train_inds),
+            batch_size=batch_size,
+            shuffle=shuffle,
+            num_workers=num_workers
+        ))
+        val_loaders.append(BalanceDataLoader(
+            dset,
+            sampler=BalanceSampler(dset, log_val_inds),
+            batch_size=batch_size,
+            shuffle=shuffle,
+            num_workers=num_workers
+        ))
+
+    return train_loaders, val_loaders
 
 if __name__ == '__main__':
+
     from balance_batch_dataloader import *
+
     csv_path = 'data/train_v2.csv'
     img_path = 'data/train-jpg'
     img_ext = '.jpg'

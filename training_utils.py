@@ -31,7 +31,6 @@ def train_epoch(loader_train, model, loss_fn, optimizer, dtype,
         y_var = Variable(y.type(dtype))
 
         scores = model(x_var)
-    scores = (weights[0]*s[0,:,:] + weights[1]*s[1,:,:] + weights[2]*s[2,:,:]) / sum(weights)
 
         loss = loss_fn(scores, y_var)
         loss_history.append(loss.data[0])
