@@ -384,10 +384,11 @@ if __name__ == '__main__':
     img_ext = '.jpg'
     dtype = torch.FloatTensor
     training_dataset = ResnetOptimizeDataset(csv_path, img_path, dtype)
-    inds = np.arange(0, len(training_dataset), 2)
-    logical_inds = np.ones(len(training_dataset))
-    logical_inds[inds] = 0
+    inds = np.arange(10000)
+    logical_inds = np.zeros(len(training_dataset))
+    logical_inds[inds] = 1
     bbs = BalanceSampler(training_dataset, logical_inds)
+    print(len(bbs))
     train_loader = BalanceDataLoader(training_dataset, sampler=bbs,
                                                batch_size=32, num_workers=1)
     for t, (x, y) in enumerate(train_loader):

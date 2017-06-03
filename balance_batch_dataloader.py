@@ -41,6 +41,12 @@ class BalanceSampler(RandomSampler):
         else:
             self.num_samples = int(np.sum(logical_inds))
         self.class_dict = generate_label_index_dict(dataset, logical_inds)
+        self.class_dict_keys = []
+        ## this is to allow testing on a subset of data, normally the list
+        ## of keys should just be all the keys
+        for k, v in self.class_dict.items():
+            if len(v) > 0:
+                self.class_dict_keys.append(k)
 
 
 class BalanceDataLoaderIter(DataLoaderIter):
@@ -51,10 +57,12 @@ class BalanceDataLoaderIter(DataLoaderIter):
         batch_size = min(self.samples_remaining, self.batch_size)
         # batch = [next(self.sample_iter) for _ in range(batch_size)]
         batch = []
-        keys = list(self.sampler.class_dict.keys())
+        ## list of keys in sampler
+        keys = self.sampler.class_dict_keys
         for i in range(batch_size):
             randclass = random.choice(keys)
-            batch.append(random.choice(self.sampler.class_dict[randclass]))
+            idx = random.choice(self.sampler.class_dict[randclass])
+            batch.append(idx)
 
         self.samples_remaining -= len(batch)
         return batch
