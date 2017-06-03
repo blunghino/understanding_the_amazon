@@ -90,7 +90,7 @@ class ResnetOptimizeDataset(ResnetTrainDataset):
         self.X_train = df['image_name']
         self.y_train = self.mlb.fit_transform(df['tags'].str.split()).astype(np.float32)
 
-        
+
 class ResnetTestDataset(Dataset):
     """
     class to load test data for Resnet into pytorch
@@ -187,7 +187,7 @@ class AmazonDataset(Dataset):
         ## the paths to the images
         self.X_train = df['image_name']
         self.y_train = self.mlb.fit_transform(df['tags'].str.split()).astype(np.float32)
-        
+
 
 
     def __getitem__(self, index):
@@ -378,4 +378,3 @@ if __name__ == '__main__':
         col_sum = y.sum(dim=0).numpy().flatten()
         print(col_sum > 0)
         break
-

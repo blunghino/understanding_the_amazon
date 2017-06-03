@@ -52,7 +52,7 @@ if __name__ == '__main__':
     img_ext = '.jpg'
     ## dataloader params
     batch_size = 256
-    use_fraction_of_data = .01 # 1 to train on full data set
+    use_fraction_of_data = 0.1 # 1 to train on full data set
     ## optimization hyperparams
     sigmoid_threshold = 0.25
     lr_1 = 1e-3
@@ -90,7 +90,7 @@ if __name__ == '__main__':
         datasets,
         batch_size=batch_size,
         num_workers=num_workers,
-        use_fraction_of_data=use_fraction_of_data,
+        use_fraction_of_data=use_fraction_of_data,split=0.999
     )
 
     models = [
@@ -213,17 +213,17 @@ if __name__ == '__main__':
     ## generate predictions on test data set
     if run_test:
         s,y_array=get_scores(models, val_loaders, dtype)
-
         weights=[6,1,1]
         scores = (weights[0]*s[0,:,:] + weights[1]*s[1,:,:] + weights[2]*s[2,:,:]) / sum(weights)
         sig_scores = torch.sigmoid(torch.from_numpy(scores)).numpy()
-        sigmoid_threshold = 0.25
+        sigmoid_threshold = 0.5
         F2=get_F2(sig_scores, y_array, sigmoid_threshold)
 
         print(str(weights)+": "+str(F2))
         print("Starting PSO")
-        lb = [0.1, 0, 0]
+        lb = [1, 0, 1]
         ub = [10, 1,4]
         args = (s,y_array,sigmoid_threshold)
+        print(sigmoid_threshold)
         weights, F2 = pso(optimize_w, lb, ub, args=args,maxiter=1000,debug=False,swarmsize=1000)
         print(str(weights)+": "+str(-F2))
