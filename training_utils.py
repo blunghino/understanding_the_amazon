@@ -60,7 +60,7 @@ def validate_epoch(model, loader, dtype, sigmoid_threshold=0.5):
     n_samples = len(loader.sampler)
     x, y = loader.dataset[0]
     y_array = torch.zeros((n_samples, y.size()[0]))
-    y_pred_array = torch.zeros(y_array.shape)
+    y_pred_array = torch.zeros(y_array.size())
     bs = loader.batch_size
     ## Put the model in test mode
     model.eval()
