@@ -1,7 +1,7 @@
 import os.path
 from PIL import Image
 
-# import tifffile
+import tifffile
 import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.model_selection import train_test_split
