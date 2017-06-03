@@ -39,7 +39,7 @@ class BalanceSampler(RandomSampler):
         if logical_inds is None:
             self.num_samples = len(dataset)
         else:
-            self.num_samples = np.sum(logical_inds)
+            self.num_samples = int(np.sum(logical_inds))
         self.class_dict = generate_label_index_dict(dataset, logical_inds)
 
 
