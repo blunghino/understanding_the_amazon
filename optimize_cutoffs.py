@@ -12,7 +12,7 @@ from loss import f2_score
 
 
 def optimize_F2(sig_scores, y, precision=0.001, verbose=False,
-                initial_threshold=0.25):
+                initial_threshold=0.5):
     """
     given sigmoid scores and correct labels, optimize the sigmoid thresholds
     to get the highest F2 score
