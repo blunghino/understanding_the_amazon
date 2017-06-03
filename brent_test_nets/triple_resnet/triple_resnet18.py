@@ -211,11 +211,15 @@ if __name__ == '__main__':
     ## generate predictions on test data set
     if run_test:
         ## first optize sigmoid thresholds
+        print("optimizing sigmoid cutoffs for each class")
         sig_scores, y_array = get_triple_resnet_val_scores(models, val_loaders,
                                                            dtype,
                                                     weights=test_model_weights)
         sigmoid_threshold = optimize_F2(sig_scores, y_array,
                                         initial_threshold=sigmoid_threshold)
+        print("optimal thresholds: ", sigmoid_threshold)
+        
+        print("generating results for test dataset")
         test_loaders = []
         for ip in img_paths:
             test_dataset = ResnetTestDataset(csv_path, ip, dtype)
