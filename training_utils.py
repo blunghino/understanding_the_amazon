@@ -199,12 +199,12 @@ def get_triple_resnet_val_scores(models, loaders, dtype,
                     y_array[j*bs:(j+1)*bs,:] = y.numpy()
 
             score_var = model(x_var)
-            
+
             ## store each set of scores
             if dtype is torch.cuda.FloatTensor:
-                s[i*bs:(i+1)*bs,:] = score_var.data.cpu().numpy()
+                s[i,j*bs:(j+1)*bs,:] = score_var.data.cpu().numpy()
             elif dtype is torch.FloatTensor:
-                s[i*bs:(i+1)*bs,:] = score_var.data.numpy()
+                s[i,j*bs:(j+1)*bs,:] = score_var.data.numpy()
 
     ## weighted average of scores from 3 models
     scores = (weights[0]*s[0,:,:] + weights[1]*s[1,:,:] + weights[2]*s[2,:,:]) / sum(weights)

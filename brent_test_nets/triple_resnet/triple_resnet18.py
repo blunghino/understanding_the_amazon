@@ -51,7 +51,7 @@ if __name__ == '__main__':
     img_ext = '.jpg'
     ## dataloader params
     batch_size = 256
-    use_fraction_of_data = .01 # 1 to train on full data set
+    use_fraction_of_data = 1 # 1 to train on full data set
     ## optimization hyperparams
     sigmoid_threshold = 0.25
     lr_1 = 1e-3
@@ -218,7 +218,7 @@ if __name__ == '__main__':
         sigmoid_threshold = optimize_F2(sig_scores, y_array,
                                         initial_threshold=sigmoid_threshold)
         print("optimal thresholds: ", sigmoid_threshold)
-        
+
         print("generating results for test dataset")
         test_loaders = []
         for ip in img_paths:
