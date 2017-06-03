@@ -36,8 +36,12 @@ class BalanceSampler(RandomSampler):
     used for train-val split
     """
     def __init__(self, dataset, logical_inds=None):
-        self.num_samples = len(dataset)
+        if logical_inds is None:
+            self.num_samples = len(dataset)
+        else:
+            self.num_samples = np.sum(logical_inds)
         self.class_dict = generate_label_index_dict(dataset, logical_inds)
+
 
 class BalanceDataLoaderIter(DataLoaderIter):
     """
