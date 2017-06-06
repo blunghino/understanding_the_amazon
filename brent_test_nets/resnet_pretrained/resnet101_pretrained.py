@@ -34,7 +34,7 @@ if __name__ == '__main__':
     ############################### SETTINGS ###################################
     ## only need to change things in this part of the code
 
-    root = "resnet52_pretrained" # name of model
+    root = "resnet101_pretrained" # name of model
     save_model_path = "{}_state_dict.pkl".format(root)
     save_mat_path_fc = "{}_loss_and_acc_fc.mat".format(root)
     save_mat_path_tune = "{}_loss_and_acc_tune.mat".format(root)
@@ -54,6 +54,7 @@ if __name__ == '__main__':
     adaptive_lr_patience = 0 # scale lr after loss plateaus for "patience" epochs
     adaptive_lr_factor = 0.1 # scale lr by this factor
     ## whether to generate predictions on test
+    sigmoid_threshold = 0.25
     run_test = True
     test_csv_path = "../../data/sample_submission_v2.csv"
     test_img_path = "../../data/test-jpg"
@@ -164,10 +165,10 @@ if __name__ == '__main__':
 
     ## generate predictions on test data set
     if run_test:
-        print("optimizing cutoffs")
-        sig_scores, y_array = get_scores(model, train_loader, dtype)
-        sigmoid_threshold = optimize_F2(sig_scores, y_array)
-        print(sigmoid_threshold)
+        # print("optimizing cutoffs")
+        # sig_scores, y_array = get_scores(model, train_loader, dtype)
+        # sigmoid_threshold = optimize_F2(sig_scores, y_array)
+        # print(sigmoid_threshold)
 
         test_dataset = AmazonTestDataset(csv_path, img_path, img_ext, dtype,
                         three_band=True, transform_list=transform_list,
