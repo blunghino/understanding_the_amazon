@@ -67,7 +67,7 @@ if __name__ == '__main__':
         "../../data/test_grad",
     ]
     test_model_weights = (8., 1., 1.)
-    test_results_csv_path = "{}_results.csv".format(root)
+    test_results_csv_path = "{}_rgb_results.csv".format(root)
     ############################################################################
 
     ## cpu/gpu setup
@@ -123,12 +123,12 @@ if __name__ == '__main__':
 
     print("generating results for test dataset")
     test_dataset = ResnetTestDataset(csv_path, img_paths[i], dtype)
-    test_loaders.append(DataLoader(test_dataset, batch_size=batch_size,
-                                       num_workers=num_workers))
+    test_loader = DataLoader(test_dataset, batch_size=batch_size,
+                             num_workers=num_workers)
     ## use three models to generate predictions
     test_preds = test_model(model, test_loader,
-                                    train_loaders[0].dataset.mlb, dtype,
-                                    sigmoid_threshold=sigmoid_threshold,
-                                    out_file_name=test_results_csv_path)
+                            train_loaders[0].dataset.mlb, dtype,
+                            sigmoid_threshold=sigmoid_threshold,
+                            out_file_name=test_results_csv_path)
     print("test set results saved as {}".format(
                                     os.path.abspath(test_results_csv_path)))
