@@ -109,18 +109,18 @@ def get_scores(model, loader, dtype):
         scores = model(x_var)
 
 
-        if dtype == 'torch.cuda.FloatTensor':
+        if dtype == 'torch.cuda.FloatTensor' or dtype is torch.cuda.FloatTensor:
             sig_scores = torch.sigmoid(scores).data.cpu().numpy()
 
             y_array[i*bs:(i+1)*bs,:] = y.cpu().numpy()
             sig_scores_array[i*bs:(i+1)*bs,:] = sig_scores
-        elif dtype == 'torch.FloatTensor':
+        elif dtype == 'torch.FloatTensor' or dtype is torch.FloatTensor:
             sig_scores = torch.sigmoid(scores).data.numpy()
 
             y_array[i*bs:(i+1)*bs,:] = y.numpy()
             sig_scores_array[i*bs:(i+1)*bs,:] = sig_scores
         else:
-            print('dtype ' + dtype + ' not supported')
+            print('dtype not supported')
 
     return sig_scores_array, y_array
 
