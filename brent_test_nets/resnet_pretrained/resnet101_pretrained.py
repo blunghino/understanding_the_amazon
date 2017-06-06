@@ -164,12 +164,16 @@ if __name__ == '__main__':
 
     ## generate predictions on test data set
     if run_test:
-	sig_scores,y_array=get_scores(model,train_loader,dtype)
-	sigmoid_threshold=optimize_F2(sig_scores,y_array)
+        print("optimizing cutoffs")
+        sig_scores, y_array = get_scores(model, train_loader, dtype)
+        sigmoid_threshold = optimize_F2(sig_scores, y_array)
+        print(sigmoid_threshold)
+
         test_dataset = AmazonTestDataset(csv_path, img_path, img_ext, dtype,
                         three_band=True, transform_list=transform_list,
                         channel_means=IMAGENET_MEAN, channel_stds=IMAGENET_STD)
         test_loader = DataLoader(test_dataset, batch_size=batch_size, num_workers=num_workers)
-        test_preds = test_model(model, test_loader, train_loader.dataset.mlb, dtype,sigmoid_threshold=sigmoid_threshold,
+        test_preds = test_model(model, test_loader, train_loader.dataset.mlb,
+                                dtype, sigmoid_threshold=sigmoid_threshold,
                                 out_file_name=test_results_csv_path)
         print("test set results saved as {}".format(os.path.abspath(test_results_csv_path)))
