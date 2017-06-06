@@ -223,8 +223,8 @@ if __name__ == '__main__':
 
         print("generating results for test dataset")
         test_loaders = []
-        for ip in img_paths:
-            test_dataset = ResnetTestDataset(csv_path, ip, dtype)
+        for ip in test_img_paths:
+            test_dataset = ResnetTestDataset(test_csv_path, ip, dtype)
             test_loaders.append(DataLoader(test_dataset, batch_size=batch_size,
                                            num_workers=num_workers))
         ## use three models to generate predictions

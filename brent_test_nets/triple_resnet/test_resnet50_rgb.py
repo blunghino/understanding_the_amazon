@@ -122,7 +122,7 @@ if __name__ == '__main__':
     print("optimal thresholds: ", sigmoid_threshold)
 
     print("generating results for test dataset")
-    test_dataset = ResnetTestDataset(csv_path, img_paths[i], dtype)
+    test_dataset = ResnetTestDataset(test_csv_path, test_img_paths[i], dtype)
     test_loader = DataLoader(test_dataset, batch_size=batch_size,
                              num_workers=num_workers)
     ## use three models to generate predictions
