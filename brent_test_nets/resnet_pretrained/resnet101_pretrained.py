@@ -17,7 +17,7 @@ from pytorch_addons.pytorch_lr_scheduler.lr_scheduler import ReduceLROnPlateau
 from training_utils import train_epoch, validate_epoch, test_model
 from read_in_data import generate_train_val_dataloader, AmazonDataset, AmazonTestDataset
 from plotting_tools import save_accuracy_and_loss_mat
-
+from optimize_cutoffs import optimize_F2, get_scores
 
 if __name__ == '__main__':
     ## command line arg to determine retraining vs loading model
@@ -164,10 +164,12 @@ if __name__ == '__main__':
 
     ## generate predictions on test data set
     if run_test:
+	sig_scores,y_array=get_scores(model,train_loader,dtype)
+	sigmoid_threshold=optimize_F2(sig_scores,y_array)
         test_dataset = AmazonTestDataset(csv_path, img_path, img_ext, dtype,
                         three_band=True, transform_list=transform_list,
                         channel_means=IMAGENET_MEAN, channel_stds=IMAGENET_STD)
         test_loader = DataLoader(test_dataset, batch_size=batch_size, num_workers=num_workers)
-        test_preds = test_model(model, test_loader, train_loader.dataset.mlb, dtype,
+        test_preds = test_model(model, test_loader, train_loader.dataset.mlb, dtype,sigmoid_threshold=sigmoid_threshold,
                                 out_file_name=test_results_csv_path)
         print("test set results saved as {}".format(os.path.abspath(test_results_csv_path)))
