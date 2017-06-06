@@ -95,8 +95,10 @@ def test_model(model, loader, mlb, dtype, out_file_name="",
         file_names += list(file_name)
         scores = model(x_var)
 
-        ## https://discuss.pytorch.org/t/calculating-accuracy-for-a-multi-label-classification-problem/2303
-        y_pred = torch.sigmoid(scores).data.numpy() > sigmoid_threshold
+        if dtype is torch.FloatTensor:
+            y_pred = torch.sigmoid(scores).data.numpy() > sigmoid_threshold
+        else:
+            y_pred = torch.sigmoid(scores).data.cpu().numpy() > sigmoid_threshold
 
         y_pred_array[i*bs:(i+1)*bs,:] = y_pred
 
