@@ -10,8 +10,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torch import np
 
-from training_utils import test_model
-                            get_triple_resnet_val_scores)
+from training_utils import test_model, get_scores
 from read_in_data import (triple_train_val_balance_dataloaders,
                           ResnetTrainDataset, ResnetTestDataset)
 from optimize_cutoffs import optimize_F2
@@ -118,12 +117,7 @@ if __name__ == '__main__':
 
     ## first optize sigmoid thresholds
     print("optimizing sigmoid cutoffs for each class")
-    sig_scores, y_array = get_triple_resnet_val_scores(
-                            models,
-                            train_loaders,
-                            dtype,
-                            weights=test_model_weights
-                        )
+    sig_scores, y_array = get_scores(models, train_loaders, dtype)
     sigmoid_threshold = optimize_F2(sig_scores, y_array)
     print("optimal thresholds: ", sigmoid_threshold)
 
