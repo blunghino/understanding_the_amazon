@@ -221,9 +221,8 @@ if __name__ == '__main__':
 
         print(str(weights)+": "+str(F2))
         print("Starting PSO")
-        lb = [1, 0, 1]
-        ub = [10, 1,4]
+        lb = [0.1, 0, 0.1]
+        ub = [50, 1,10]
         args = (s,y_array,sigmoid_threshold)
-        print(sigmoid_threshold)
-        weights, F2 = pso(optimize_w, lb, ub, args=args,maxiter=1000,debug=False,swarmsize=1000)
+        weights, F2 = pso(optimize_w, lb, ub, args=args,maxiter=100000,debug=False,swarmsize=1000)
         print(str(weights)+": "+str(-F2))
