@@ -96,8 +96,11 @@ Our goal is to train a neural network that gives a high F2 score on the validati
 
 %------------------------------------------------------------------------
 
-\section{Intermediate Results}
-
+\section{Results}
+\subsection*{ResNet 18 pretrained}
+\subsection*{ResNet 101 pretrained}
+\subsection*{triple ResNet 18 pretrained}
+\subsection*{ResNet 18}
 At this point, we have built the entire pipeline from reading in the data to submitting our results to the Kaggle competition. Given the object oriented approach similar to the way the assignments were designed, we only need to swap in the model to try new approaches. This will allow us to have a quick turnaround while trying different models in PyTorch. We have successfully trained several models and submitted results to the Kaggle competition.
 
 We have uploaded the 20GB of training image data to a Google Cloud virtual instance with one GPU and successfully used PyTorch to read in the image data and train a 6-layer CNN. The loss quickly converges and oscillates around a local minimum. To obtain better accuracy, we added learning rate decay. When the loss function does not improve for two consecutive batches, the learning rate is decayed by a factor of ten. Our final score is based on the mean F-score so we are training our models based on this score. Our best neural net so far has been a 6 layer CNN. The CNN takes in the 256 x 256 x 4 images and passes them through a convolutional layer with 16 filters with size 3x3, stride 1, and pad 1. We use a ReLU activation function on the result followed by a batch normalization layer. After that, a max pooling layer is applied with kernel size 2, stride 2, pad 0. This conv - ReLU - batch normalization - max pool block is applied 6 times, and the result is flattened and passed through two fully connected layers with 1024 hidden nodes and 17 outputs, respectively. This architecture gives our best result so far. After training for 10 epochs, the validation accuracy plateaus at 0.83, as seen in Figure 1. Since, at the end of 10 epochs of training, the training accuracy is still increasing, but the validation accuracy has plateaued, this model is beginning to overfit the training data, and further training would likely result in overfitting and a decrease in the validation accuracy.
@@ -132,5 +135,5 @@ One parameter that we have yet to tune is the cutoff for whether or not a label 
 \bibliographystyle{ieee}
 \bibliography{references}
 }
-
+$http://alimurreza.blogspot.com/2017/04/deep-residual-network-resnet.html$
 \end{document}
