@@ -25,7 +25,8 @@ class ResnetTrainDataset(Dataset):
     """
     class to load Amazon satellite data into pytorch for pretrained resnet
     """
-    def __init__(self, csv_path, img_path, dtype,):
+    def __init__(self, csv_path, img_path, dtype,
+                 channel_means=None, channel_stds=None):
 
         self.img_path = img_path
         self.dtype = dtype
@@ -35,12 +36,17 @@ class ResnetTrainDataset(Dataset):
 
         self.mlb = MultiLabelBinarizer()
 
+        if channel_means is None:
+            channel_means = IMAGENET_MEAN
+        if channel_stds is None:
+            channel_stds = IMAGENET_STD
+
         ## add all img transforms to this list
         transform_list = [
             transforms.RandomSizedCrop(224),
             random_flip_rotation_pil,
             transforms.ToTensor(),
-            transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
+            transforms.Normalize(mean=channel_means, std=channel_stds)
         ]
         self.transforms = transforms.Compose(transform_list)
 
@@ -65,38 +71,13 @@ class ResnetTrainDataset(Dataset):
     def __len__(self):
         return len(self.X_train.index)
 
-class ResnetOptimizeDataset(ResnetTrainDataset):
-    """
-    class for optimizing weights and thresholds post training
-    """
-    def __init__(self, csv_path, img_path, dtype,):
-
-        self.img_path = img_path
-        self.dtype = dtype
-        self.img_ext = '.jpg'
-
-        df = pd.read_csv(csv_path)
-
-        self.mlb = MultiLabelBinarizer()
-
-        ## add all img transforms to this list
-        transform_list = [
-            transforms.Scale(224),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
-        ]
-        self.transforms = transforms.Compose(transform_list)
-
-        ## the paths to the images
-        self.X_train = df['image_name']
-        self.y_train = self.mlb.fit_transform(df['tags'].str.split()).astype(np.float32)
-
 
 class ResnetTestDataset(Dataset):
     """
     class to load test data for Resnet into pytorch
     """
-    def __init__(self, csv_path, img_path, dtype,):
+    def __init__(self, csv_path, img_path, dtype,
+                 channel_means=None, channel_stds=None):
 
         self.img_path = img_path
         self.dtype = dtype
@@ -106,11 +87,17 @@ class ResnetTestDataset(Dataset):
 
         self.mlb = MultiLabelBinarizer()
 
+        if channel_means is None:
+            channel_means = IMAGENET_MEAN
+        if channel_stds is None:
+            channel_stds = IMAGENET_STD
+
         ## add all img transforms to this list
-        transform_list = [transforms.Scale(224)]
-        # transform_list = [transforms.CenterCrop(224)]
-        transform_list += [transforms.ToTensor()]
-        transform_list += [transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)]
+        transform_list = [
+            transforms.Scale(224),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=channel_means, std=channel_stds)
+        ]
         self.transforms = transforms.Compose(transform_list)
 
         ## the paths to the images
@@ -132,11 +119,13 @@ class ResnetTestDataset(Dataset):
     def __len__(self):
         return len(self.X_train.index)
 
+
 class ResnetOptimizeDataset(ResnetTrainDataset):
     """
     class for optimizing weights and thresholds post training
     """
-    def __init__(self, csv_path, img_path, dtype,):
+    def __init__(self, csv_path, img_path, dtype,
+                 channel_means=None, channel_stds=None):
 
         self.img_path = img_path
         self.dtype = dtype
@@ -146,11 +135,16 @@ class ResnetOptimizeDataset(ResnetTrainDataset):
 
         self.mlb = MultiLabelBinarizer()
 
+        if channel_means is None:
+            channel_means = IMAGENET_MEAN
+        if channel_stds is None:
+            channel_stds = IMAGENET_STD
+
         ## add all img transforms to this list
         transform_list = [
             transforms.Scale(224),
             transforms.ToTensor(),
-            transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
+            transforms.Normalize(mean=channel_means, std=channel_stds)
         ]
         self.transforms = transforms.Compose(transform_list)
 
