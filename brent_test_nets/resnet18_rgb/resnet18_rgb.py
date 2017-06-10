@@ -17,6 +17,7 @@ from training_utils import train_epoch, validate_epoch, test_model
 from read_in_data import (generate_train_val_dataloader, ResnetTrainDataset,
                           ResnetTestDataset)
 from plotting_tools import save_accuracy_and_loss_mat
+from optimize_cutoffs import get_scores, optimize_F2
 
 
 if __name__ == '__main__':
@@ -40,13 +41,13 @@ if __name__ == '__main__':
     csv_path = '../../data/train_v2.csv'
     img_path = '../../data/train-jpg'
     img_ext = '.jpg'
-    save_every = 1
+    save_every = 5
     ## dataloader params
     batch_size = 256
-    use_fraction_of_data = 0.01 # 1 to train on full data set
+    use_fraction_of_data = 1. # 1 to train on full data set
     ## optimization hyperparams
     lr = 1e-3
-    num_epochs = 1
+    num_epochs = 30
     reg = 1e-3
     adaptive_lr_patience = 0 # scale lr after loss plateaus for "patience" epochs
     adaptive_lr_factor = 0.1 # scale lr by this factor
@@ -65,8 +66,8 @@ if __name__ == '__main__':
         dtype = torch.FloatTensor
         num_workers = 4
 
-    JPG_RGB_MEAN = [0., 0., 0.]
-    JPG_RGB_STD = [1., 1., 1.]
+    JPG_RGB_MEAN = [0.68856319,  0.65945722,  0.70117001]
+    JPG_RGB_STD = [0.05338322,  0.04247037,  0.03543733]
 
     dataset = ResnetTrainDataset(csv_path, img_path, dtype,
                                  channel_means=JPG_RGB_MEAN,
@@ -106,7 +107,8 @@ if __name__ == '__main__':
                                                  optimizer, dtype, print_every=20)
             scheduler.step(np.mean(epoch_losses), epoch)
             ## f2 score for validation dataset
-            f2_acc = validate_epoch(model, val_loader, dtype)
+            f2_acc = validate_epoch(model, val_loader, dtype,
+                                    sigmoid_threshold=0.25)
             ## store results
             train_acc_history += epoch_f2
             val_acc_history.append(f2_acc)
@@ -114,7 +116,7 @@ if __name__ == '__main__':
             ## overwrite the model .pkl file every epoch
             torch.save(model.state_dict(), save_model_path)
             save_accuracy_and_loss_mat(save_mat_path, train_acc_history,
-                                    val_acc_history, loss_history, num_epochs)
+                                    val_acc_history, loss_history, epoch)
             ## checkpoints
             if save_every and not epoch % save_every:
                 save_epoch_path = "{}_epoch-{:d}.pkl".format(save_mat_path.split('.')[0], epoch)
@@ -122,7 +124,7 @@ if __name__ == '__main__':
                 print("checkpoint saved as {}".format(os.path.abspath(save_epoch_path)))
 
             print("END epoch {}/{}: validation F2 score = {:.02f}".format(
-                  epoch+1, num_epochs, f2_acc))
+                  epoch, num_epochs, f2_acc))
         ## serialize model data and save as .pkl file
         print("model saved as {}".format(os.path.abspath(save_model_path)))
 
@@ -136,11 +138,19 @@ if __name__ == '__main__':
 
     ## generate predictions on test data set
     if run_test:
+        ## first optize sigmoid thresholds
+        print("optimizing sigmoid cutoffs for each class")
+        sig_scores, y_array = get_scores(model, train_loader, dtype)
+        sigmoid_threshold = optimize_F2(sig_scores, y_array)
+        print("optimal thresholds: ", sigmoid_threshold)
+
+        print("running model on test set")
         test_dataset = ResnetTestDataset(test_csv_path, test_img_path, dtype,
                                          channel_means=JPG_RGB_MEAN,
                                          channel_stds=JPG_RGB_STD)
         test_loader = DataLoader(test_dataset, batch_size=batch_size,
                                  num_workers=num_workers)
-        test_preds = test_model(model, test_loader, train_loader.dataset.mlb, dtype,
+        test_preds = test_model(model, test_loader, train_loader.dataset.mlb,
+                                dtype, sigmoid_threshold=sigmoid_threshold,
                                 out_file_name=test_results_csv_path)
         print("test set results saved as {}".format(os.path.abspath(test_results_csv_path)))
