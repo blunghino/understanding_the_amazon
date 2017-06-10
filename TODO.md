@@ -1,10 +1,15 @@
+- confusion matrix
 
-- train pretrained triple resnet18 with R-inf-B for 18 epochs 
+- train resnets from scratch
+  - find means and stds for each channel rgb, inf, grad
+  - 18, 34, 50
+  - rgb
+  - rbb, gradX, gradY (no tiff data)
+  - rbg, inf, gradX, gradY
 
-- incorporate three resnets into one model that can learn weights and sum scores
+- Brute force F2 Score optimization
 
-- train resnet from scratch
-  - find means and stds for each dataset rgb, r-inf-b, grad
+- Output .pkl and data at every epoch
 
-- try pretrained resnet 34
+- Ensembling
 
