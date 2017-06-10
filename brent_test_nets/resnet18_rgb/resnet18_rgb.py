@@ -87,6 +87,7 @@ if __name__ == '__main__':
     # model.conv1 = nn.Conv2d(7, 64, kernel_size=7, stride=2, padding=3, bias=False)
     model.type(dtype)
 
+    sigmoid_threshold = 0.25
     loss_fn = nn.MultiLabelSoftMarginLoss().type(dtype)
 
     ## don't load model params from file - instead retrain the model
@@ -104,11 +105,13 @@ if __name__ == '__main__':
         for epoch in range(1, num_epochs+1):
             print("Begin epoch {}/{}".format(epoch, num_epochs))
             epoch_losses, epoch_f2 = train_epoch(train_loader, model, loss_fn,
-                                                 optimizer, dtype, print_every=20)
+                                                 optimizer, dtype,
+                                                 sigmoid_threshold=sigmoid_threshold,
+                                                 print_every=20)
             scheduler.step(np.mean(epoch_losses), epoch)
             ## f2 score for validation dataset
             f2_acc = validate_epoch(model, val_loader, dtype,
-                                    sigmoid_threshold=0.25)
+                                    sigmoid_threshold=sigmoid_threshold)
             ## store results
             train_acc_history += epoch_f2
             val_acc_history.append(f2_acc)
