@@ -218,12 +218,13 @@ if __name__ == '__main__':
                                 dtype,
                                 weights=test_model_weights
                             )
-        sigmoid_threshold = optimize_F2(sig_scores, y_array)
+        #sigmoid_threshold = optimize_F2(sig_scores, y_array)
+        sigmoid_threshold=[ 0.21191406,  0.10058594,  0.16113281,  0.12597656,  0.12792969,  0.24902344,0.04199219,  0.15527344 , 0.17285156  ,0.16699219 , 0.12792969 , 0.14355469,0.42675781 , 0.25097656 , 0.13574219 , 0.12988281 , 0.21386719]
         print("optimal thresholds: ", sigmoid_threshold)
 
         print("generating results for test dataset")
         test_loaders = []
-        for ip in img_paths:
+        for ip in test_img_paths:
             test_dataset = ResnetTestDataset(test_csv_path, ip, dtype)
             test_loaders.append(DataLoader(test_dataset, batch_size=batch_size,
                                            num_workers=num_workers))
