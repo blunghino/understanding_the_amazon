@@ -1,0 +1,30 @@
+\begin{thebibliography}{1}\itemsep=-1pt
+
+\bibitem{WWF}
+About the amazon.
+\newblock {\em World Wildlife Fund}, 2017.
+\newblock
+  \url{http://wwf.panda.org/what_we_do/where_we_work/amazon/about_the_amazon/}.
+
+\bibitem{Kaggle}
+Understanding the amazon from space.
+\newblock {\em Kaggle}, 2017.
+\newblock
+  \url{https://www.kaggle.com/c/planet-understanding-the-amazon-from-space}.
+
+\bibitem{ResNet}
+K.~He, X.~Zhang, S.~Ren, and J.~Sun.
+\newblock Deep residual learning for image recognition.
+\newblock {\em CoRR}, abs/1512.03385, 2015.
+
+\bibitem{Adam}
+D.~P. Kingma and J.~Ba.
+\newblock Adam: {A} method for stochastic optimization.
+\newblock {\em CoRR}, abs/1412.6980, 2014.
+
+\bibitem{VGGNet}
+K.~Simonyan and A.~Zisserman.
+\newblock Very deep convolutional networks for large-scale image recognition.
+\newblock {\em CoRR}, abs/1409.1556, 2014.
+
+\end{thebibliography}
