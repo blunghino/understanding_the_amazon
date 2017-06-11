@@ -4,7 +4,7 @@ testing the basic setup of a model script using a model with two conv layers
 import sys
 import os.path
 
-from torchvision.models import resnet101
+# from torchvision.models import resnet101
 import torchvision.transforms as T
 import torch
 import torch.nn as nn
