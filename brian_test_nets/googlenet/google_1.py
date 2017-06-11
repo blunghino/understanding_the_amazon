@@ -43,14 +43,14 @@ if __name__ == '__main__':
     img_path = '../../data/train-jpg'
     img_ext = '.jpg'
     ## dataloader params
-    batch_size = 4
+    batch_size = 32
     use_fraction_of_data = 1 # 1 to train on full data set
     ## optimization hyperparams
     lr_1 = 1e-3
     num_epochs_1 = 4
     reg_1 = 0
     lr_2 = 5e-5
-    num_epochs_2 = 16
+    num_epochs_2 = 22
     reg_2 = 1e-3
     adaptive_lr_patience = 0 # scale lr after loss plateaus for "patience" epochs
     adaptive_lr_factor = 0.1 # scale lr by this factor
