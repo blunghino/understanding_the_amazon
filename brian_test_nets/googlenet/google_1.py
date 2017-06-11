@@ -12,7 +12,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch import np
 
-from lr_scheduler import ReduceLROnPlateau
+from pytorch_addons.pytorch_lr_scheduler.lr_scheduler import ReduceLROnPlateau
 
 from training_utils import train_epoch, validate_epoch, test_model
 from read_in_data import generate_train_val_dataloader, AmazonDataset, AmazonTestDataset
