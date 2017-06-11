@@ -36,7 +36,7 @@ if __name__ == '__main__':
     ## only need to change things in this part of the code
 
     root = "googlenet" # name of model
-    save_model_path = "{}_state_dict.pkl".format(root)
+    save_model_path = "{}_state_dict_".format(root)
     save_mat_path_fc = "{}_loss_and_acc_fc.mat".format(root)
     save_mat_path_tune = "{}_loss_and_acc_tune.mat".format(root)
     csv_path = '../../data/train_v2.csv'
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     reg_1 = 0
     lr_2 = 5e-5
     num_epochs_2 = 16
-    reg_2 = 5e-4
+    reg_2 = 1e-3
     adaptive_lr_patience = 0 # scale lr after loss plateaus for "patience" epochs
     adaptive_lr_factor = 0.1 # scale lr by this factor
     ## whether to generate predictions on test
@@ -146,9 +146,10 @@ if __name__ == '__main__':
             train_acc_history_2 += epoch_f2
             val_acc_history_2.append(f2_acc)
             loss_history_2 += epoch_losses
+            torch.save(model.state_dict(), save_model_path + str(epoch) + '.pkl')
             print("END epoch {}/{}: validation F2 score = {:.02f}".format(epoch+1, num_epochs_2, f2_acc))
         ## serialize model data and save as .pkl file
-        torch.save(model.state_dict(), save_model_path)
+        torch.save(model.state_dict(), save_model_path + '.pkl')
         print("model saved as {}".format(os.path.abspath(save_model_path)))
         ## save loss and accuracy as .mat file
         save_accuracy_and_loss_mat(save_mat_path_fc, train_acc_history_1,
