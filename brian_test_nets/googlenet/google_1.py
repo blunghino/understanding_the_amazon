@@ -43,7 +43,7 @@ if __name__ == '__main__':
     img_path = '../../data/train-jpg'
     img_ext = '.jpg'
     ## dataloader params
-    batch_size = 32
+    batch_size = 4
     use_fraction_of_data = 1 # 1 to train on full data set
     ## optimization hyperparams
     lr_1 = 1e-3
@@ -90,7 +90,7 @@ if __name__ == '__main__':
     ## googlenet
     model = GoogLeNet()
     ## resize last fully connected layer to match our problem
-    model.linear = nn.Linear(1024, 17)
+    # model.linear = nn.Linear(1024, 17)
     model.type(dtype)
 
     loss_fn = nn.MultiLabelSoftMarginLoss().type(dtype)
@@ -137,8 +137,8 @@ if __name__ == '__main__':
         print("fine tuning all layers:")
         for epoch in range(num_epochs_2):
             print("Begin epoch {}/{}".format(epoch+1, num_epochs_2))
-            epoch_losses, epoch_f2 = train_epoch(train_loader, model, loss_fn,
-                                                 optimizer_2, dtype, print_every=10)
+            epoch_losses, epoch_f2 = train_epoch(train_loader, model, loss_fn, optimizer_2, dtype, print_every=10)
+            print(epoch_losses, epoch_f2)
             scheduler_2.step(np.mean(epoch_losses), epoch)
             ## f2 score for validation dataset
             f2_acc = validate_epoch(model, val_loader, dtype)
