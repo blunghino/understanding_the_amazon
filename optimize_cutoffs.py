@@ -192,6 +192,20 @@ def get_resnet_model(csv_path, img_path, img_ext, dtype):
                             channel_stds=IMAGENET_STD)
     return model, dataset
 
+def get_googlenet_model(csv_path, img_path, img_ext, dtype):
+    model = GoogLeNet()
+    model.type(dtype)
+
+    transform_list = [T.Scale(224)]
+
+    IMAGENET_MEAN = [0.485, 0.456, 0.406]
+    IMAGENET_STD = [0.229, 0.224, 0.225]
+
+    dataset = AmazonDataset(csv_path, img_path, img_ext, dtype,
+                            transform_list=transform_list, three_band=True,
+                            channel_means=IMAGENET_MEAN,
+                            channel_stds=IMAGENET_STD)
+    return model, dataset
 
 if __name__ == '__main__':
     save_model_path = 'resnet18_pretrained_state_dict.pkl'
