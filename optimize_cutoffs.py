@@ -193,6 +193,7 @@ def get_resnet_model(csv_path, img_path, img_ext, dtype):
     return model, dataset
 
 def get_googlenet_model(csv_path, img_path, img_ext, dtype):
+    from googlenet import *
     model = GoogLeNet()
     model.type(dtype)
 
