@@ -198,8 +198,6 @@ def get_googlenet_model(csv_path, img_path, img_ext, dtype):
     model = GoogLeNet()
     model.type(dtype)
 
-    transform_list = [T.Scale(224)]
-
     IMAGENET_MEAN = [0.485, 0.456, 0.406]
     IMAGENET_STD = [0.229, 0.224, 0.225]
 
