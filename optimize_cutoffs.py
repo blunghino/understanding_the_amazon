@@ -202,7 +202,7 @@ def get_googlenet_model(csv_path, img_path, img_ext, dtype):
     IMAGENET_STD = [0.229, 0.224, 0.225]
 
     dataset = AmazonDataset(csv_path, img_path, img_ext, dtype,
-                            transform_list=transform_list, three_band=True,
+                            three_band=True,
                             channel_means=IMAGENET_MEAN,
                             channel_stds=IMAGENET_STD)
     return model, dataset
