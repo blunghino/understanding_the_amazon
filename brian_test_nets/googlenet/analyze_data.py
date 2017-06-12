@@ -21,7 +21,7 @@ for i in range(1):
     model_function = get_googlenet_model
     print(get_optimal_cutoffs(save_model_path, model_function,
                               precision = 0.001,
-                              csv_path = 'data/train_v2.csv',
-                              img_path = 'data/train-jpg', img_ext = '.jpg',
+                              csv_path = '../../data/train_v2.csv',
+                              img_path = '../../data/train-jpg', img_ext = '.jpg',
                               dtype = dtype, batch_size = 32,
                               num_workers = 0, verbose = False))
