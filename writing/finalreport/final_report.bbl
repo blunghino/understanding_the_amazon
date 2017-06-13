@@ -1,0 +1,174 @@
+\begin{thebibliography}{10}\itemsep=-1pt
+
+\bibitem{WWF}
+About the amazon.
+\newblock {\em World Wildlife Fund}, 2017.
+\newblock
+  \url{http://wwf.panda.org/what_we_do/where_we_work/amazon/about_the_amazon/}.
+
+\bibitem{Kaggle}
+Understanding the amazon from space.
+\newblock {\em Kaggle}, 2017.
+\newblock
+  \url{https://www.kaggle.com/c/planet-understanding-the-amazon-from-space}.
+
+\bibitem{TransferLearning5}
+A.~Albert, J.~Kaur, and M.~Gonzalez.
+\newblock Using convolutional networks and satellite imagery to identify
+  patterns in urban environments at a large scale.
+\newblock {\em CoRR}, abs/1704.02965, 2017.
+
+\bibitem{KaggleKernel}
+M.~Bober-Irizar.
+\newblock Data exploration analysis.
+\newblock \url{https://www.kaggle.com/anokas/data-exploration-analysis}, 2017.
+
+\bibitem{fromscratch2}
+M.~Castelluccio, G.~Poggi, C.~Sansone, and L.~Verdoliva.
+\newblock Land use classification in remote sensing images by convolutional
+  neural networks.
+\newblock {\em CoRR}, abs/1508.00092, 2015.
+
+\bibitem{VGG1}
+G.~Fu, C.~Liu, R.~Zhou, T.~Sun, and Q.~Zhang.
+\newblock Classification for high resolution remote sensing imagery using a
+  fully convolutional network.
+\newblock {\em Remote Sensing}, 10(5):498, 2017.
+
+\bibitem{ResNet}
+K.~He, X.~Zhang, S.~Ren, and J.~Sun.
+\newblock Deep residual learning for image recognition.
+\newblock {\em CoRR}, abs/1512.03385, 2015.
+
+\bibitem{TransferLearning4}
+F.~Hu, G.-S. Xia, J.~Hu, and L.~Zhang.
+\newblock Transferring deep convolutional neural networks for the scene
+  classification of high-resolution remote sensing imagery.
+\newblock {\em Remote Sensing}, 7(11):14680--14707, 2015.
+
+\bibitem{Johnson2017}
+J.~Johnson.
+\newblock pytorch-finetune.
+\newblock
+  \url{https://gist.github.com/jcjohnson/6e41e8512c17eae5da50aebef3378a4c},
+  2017.
+
+\bibitem{kennedy2011particle}
+J.~Kennedy.
+\newblock Particle swarm optimization.
+\newblock In {\em Encyclopedia of machine learning}, pages 760--766. Springer,
+  2011.
+
+\bibitem{Adam}
+D.~P. Kingma and J.~Ba.
+\newblock Adam: {A} method for stochastic optimization.
+\newblock {\em CoRR}, abs/1412.6980, 2014.
+
+\bibitem{Ensemble1}
+N.~Kussul, M.~Lavreniuk, S.~Skakun, and A.~Shelestov.
+\newblock Deep learning classification of land cover and crop types using
+  remote sensing data.
+\newblock {\em IEEE Geoscience and Remote Sensing Letters}, 14(5):778--782,
+  2017.
+
+\bibitem{Liu2017}
+J.~Liu.
+\newblock pytorch-lr-scheduler.
+\newblock \url{https://github.com/Jiaming-Liu/pytorch-lr-scheduler}, 2017.
+
+\bibitem{background2}
+F.~P.~S. Luus, B.~P. Salmon, F.~van~den Bergh, and B.~T.~J. Maharaj.
+\newblock Multiview deep learning for land-use classification.
+\newblock {\em IEEE Geoscience and Remote Sensing Letters}, 12(12):2448 --
+  2452, 2015.
+
+\bibitem{Inception1}
+Z.~Ma, Z.~Wang, C.~Liu, and X.~Liu.
+\newblock Satellite imagery classification based on deep convolution network.
+\newblock {\em International Journal of Computer, Electrical, Automation,
+  Control and Information Engineering}, 10(6):1155--1159, 2016.
+
+\bibitem{background3}
+E.~Maggiori, Y.~Tarabalka, G.~Charpiat, and P.~Alliez.
+\newblock Convolutional neural networks for large-scale remote-sensing image
+  classification.
+\newblock {\em IEEE Geoscience and Remote Sensing Letters}, 55(2):645 -- 657,
+  2016.
+
+\bibitem{TransferLearning3}
+D.~Marmanis, M.~Datcu, T.~Esch, and U.~Stilla.
+\newblock Deep learning earth observation classification using imagenet
+  pretrained networks.
+\newblock {\em IEEE Geoscience and Remote Sensing Letters}, 13(1):105 -- 109,
+  2016.
+
+\bibitem{scikit-learn}
+F.~Pedregosa, G.~Varoquaux, A.~Gramfort, V.~Michel, B.~Thirion, O.~Grisel,
+  M.~Blondel, P.~Prettenhofer, R.~Weiss, V.~Dubourg, J.~Vanderplas, A.~Passos,
+  D.~Cournapeau, M.~Brucher, M.~Perrot, and E.~Duchesnay.
+\newblock Scikit-learn: Machine learning in {P}ython.
+\newblock {\em Journal of Machine Learning Research}, 12:2825--2830, 2011.
+
+\bibitem{PyTorch}
+PyTorch.
+\newblock Pytorch.
+\newblock \url{https://github.com/pytorch/pytorch}, 2017.
+
+\bibitem{imagenet}
+O.~Russakovsky, J.~Deng, H.~Su, J.~Krause, S.~Satheesh, S.~Ma, Z.~Huang,
+  A.~Karpathy, A.~Khosla, M.~Bernstein, A.~C. Berg, and L.~Fei-Fei.
+\newblock {ImageNet Large Scale Visual Recognition Challenge}.
+\newblock {\em International Journal of Computer Vision (IJCV)},
+  115(3):211--252, 2015.
+
+\bibitem{TransferLearning1}
+G.~J. Scott, M.~R. England, W.~A. Starms, R.~A. Marcum, and C.~H. Davis.
+\newblock Training deep convolutional neural networks for land–cover
+  classification of high-resolution imagery.
+\newblock {\em IEEE Geoscience and Remote Sensing Letters}, 14(4):549--553,
+  2017.
+
+\bibitem{VGGNet}
+K.~Simonyan and A.~Zisserman.
+\newblock Very deep convolutional networks for large-scale image recognition.
+\newblock {\em CoRR}, abs/1409.1556, 2014.
+
+\bibitem{GoogleNet}
+C.~Szegedy, W.~Liu, Y.~Jia, P.~Sermanet, S.~E. Reed, D.~Anguelov, D.~Erhan,
+  V.~Vanhoucke, and A.~Rabinovich.
+\newblock Going deeper with convolutions.
+\newblock {\em CoRR}, abs/1409.4842, 2014.
+
+\bibitem{TransferLearning2}
+Q.~Weng, Z.~Mao, J.~Lin, and W.~Guo.
+\newblock Land-use classification via extreme learning classifier based on deep
+  convolutional features.
+\newblock {\em IEEE Geoscience and Remote Sensing Letters}, 14(5):704--708,
+  2017.
+
+\bibitem{PovertyMapping}
+M.~Xie, N.~Jean, M.~Burke, D.~Lobell, and S.~Ermon.
+\newblock Transfer learning from deep features for remote sensing and poverty
+  mapping.
+\newblock {\em CoRR}, abs/1510.00098, 2015.
+
+\bibitem{segmentation1}
+J.~Yue, W.~Zhao, S.~Mao, and H.~Liu.
+\newblock Spectral–spatial classification of hyperspectral images using deep
+  convolutional neural networks.
+\newblock {\em Remote Sensing Letters}, 6(6):468--477, 2015.
+
+\bibitem{background1}
+W.~Zhao, Z.~Guo, J.~Yue, X.~Zhang, and L.~Luo.
+\newblock On combining multiscale deep learning features for the classification
+  of hyperspectral remote sensing imagery.
+\newblock {\em International Journal of Remote Sensing}, 36(13):3368--3379,
+  2015.
+
+\bibitem{background4}
+Y.~Zhong, F.~Fei, Y.~Liu, B.~Zhao, H.~Jiao, and L.~Zhang.
+\newblock Satcnn: satellite image dataset classification using agile
+  convolutional neural networks.
+\newblock {\em Remote Sensing Letters}, 8(2):136--145, 2017.
+
+\end{thebibliography}

@@ -1,0 +1,9 @@
+Model Name,Validation F2,Test F2,Number of Epochs,data,Data Augmentation
+Basic Conv 6-layer,0.83,0.831,10,rgb,no
+GoogleNet,0.86,,,rgb,yes
+Basic ResNet 18 ,0.887,,8,rgb,no
+Basic ResNet 101 ,0.88,,16,rgb,no
+Triple ResNet 18,0.89,0.918,12,"rgb,inf,grad",yes
+Triple ResNet 18 RinfB,0.85,0.893,12,"rgb, RinfB, grad_jpg",yes
+ResNet 50 Balancing,0.8384,0.906,18,rgb,yes
+ResNet 18 from scratch,0.89,0.912,30,rgb,yes
