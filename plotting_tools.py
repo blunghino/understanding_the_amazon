@@ -1,14 +1,21 @@
+import os
+
+import torch
 from torch import np
+from torch.autograd import Variable
 from matplotlib import pyplot as plt
 import matplotlib as mpl
 from scipy.io import savemat, loadmat
+from PIL import Image
+
 
 
 mpl.rcParams['font.size'] = 20
 
-def save_accuracy_and_loss_mat(save_mat_path, train_acc, val_acc, loss, num_epochs):
+def save_accuracy_and_loss_mat(save_mat_path, train_acc, val_acc, loss,
+                               num_epochs, lr=0):
     dic = {"train_acc": train_acc, "val_acc": val_acc,
-           "loss": loss, "num_epochs": num_epochs}
+           "loss": loss, "num_epochs": num_epochs, "lr": lr}
     savemat(save_mat_path, dic)
 
 def plot_accuracy(train_acc, val_acc, num_epochs, figsize=(10,7)):
@@ -82,3 +89,53 @@ def triple_plots_from_mat(mat_file_path_root, model_names, save_name=""):
         fig_acc.savefig("fig/plot_validation_accuracy_{}.png".format(save_name), dpi=300)
         fig_loss.savefig("fig/plot_loss_{}.png".format(save_name), dpi=300)
     return fig_acc, fig_loss
+
+def image_and_labels(model, loader, dtype,
+                             sigmoid_threshold=0.25, correct_labels='all'):
+    """
+    pass in a model and dataloader, get out an image and its labels
+    choose whether you want all labels correct (`correct_labels`='all'),
+    all labels incorrect (`correct_labels`='none'),
+    or some correct and some incorrect labels (`correct_labels`='some')
+
+    only runs on cpu
+    """
+    ## Put the model in test mode
+    model.eval()
+    for i, (x, y) in enumerate(loader):
+        print(loader.dataset.X_train[i])
+        x_var = Variable(x.type(dtype), volatile=True)
+
+        scores = model(x_var)
+
+        y_pred = torch.sigmoid(scores).data.numpy() > sigmoid_threshold
+        y = y.numpy()
+
+        sum_prod = np.sum(y * y_pred)
+        if correct_labels == 'all' and np.sum(y == y_pred) == 17:
+            break
+        elif correct_labels == 'none' and sum_prod == 0:
+            break
+        elif correct_labels == 'some' and sum_prod < np.sum(y) and sum_prod:
+            break
+        else:
+            continue
+    ## get labels
+    mlb = loader.dataset.mlb
+    pred_labels = mlb.inverse_transform(y_pred)
+    target_labels = mlb.inverse_transform(y)
+    ## load in image
+    img_str = loader.dataset.X_train[i] + loader.dataset.img_ext
+    load_path = os.path.join(loader.dataset.img_path, img_str)
+    img = Image.open(load_path)
+    ## plot
+    fig = plt.figure()
+    plt.imshow(img)
+    plt.title(correct_labels)
+    print(correct_labels)
+    print("predicted", pred_labels)
+    print("target", target_labels)
+    print(load_path)
+    print()
+    return fig
+

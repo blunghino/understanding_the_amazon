@@ -10,13 +10,14 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch import np
+from matplotlib import pyplot as plt
 
 from pytorch_addons.pytorch_lr_scheduler.lr_scheduler import ReduceLROnPlateau
 
 from training_utils import train_epoch, validate_epoch, test_model
 from read_in_data import (generate_train_val_dataloader, ResnetTrainDataset,
                           ResnetTestDataset)
-from plotting_tools import save_accuracy_and_loss_mat
+from plotting_tools import save_accuracy_and_loss_mat, image_and_labels
 from optimize_cutoffs import get_scores, optimize_F2
 
 
@@ -52,7 +53,7 @@ if __name__ == '__main__':
     adaptive_lr_patience = 0 # scale lr after loss plateaus for "patience" epochs
     adaptive_lr_factor = 0.1 # scale lr by this factor
     ## whether to generate predictions on test
-    run_test = True
+    run_test = False
     test_csv_path = "../../data/sample_submission_v2.csv"
     test_img_path = "../../data/test-jpg"
     test_results_csv_path = "{}_results.csv".format(root)
@@ -119,10 +120,12 @@ if __name__ == '__main__':
             ## overwrite the model .pkl file every epoch
             torch.save(model.state_dict(), save_model_path)
             save_accuracy_and_loss_mat(save_mat_path, train_acc_history,
-                                    val_acc_history, loss_history, epoch)
+                                       val_acc_history, loss_history, epoch,
+                                       lr=optimizer.param_groups[-1]['lr'])
             ## checkpoints
             if save_every and not epoch % save_every:
-                save_epoch_path = "{}_epoch-{:d}.pkl".format(save_mat_path.split('.')[0], epoch)
+                save_epoch_path = "{}_epoch-{:d}.pkl".format(
+                                           save_model_path.split('.')[0], epoch)
                 torch.save(model.state_dict(), save_epoch_path)
                 print("checkpoint saved as {}".format(os.path.abspath(save_epoch_path)))
 
@@ -157,3 +160,10 @@ if __name__ == '__main__':
                                 dtype, sigmoid_threshold=sigmoid_threshold,
                                 out_file_name=test_results_csv_path)
         print("test set results saved as {}".format(os.path.abspath(test_results_csv_path)))
+    else:
+        plot_loader = DataLoader(dataset, num_workers=1, batch_size=1, shuffle=True)
+        fig_all = image_and_labels(model, plot_loader, dtype, correct_labels='all')
+        fig_some = image_and_labels(model, plot_loader, dtype, correct_labels='some')
+        fig_none = image_and_labels(model, plot_loader, dtype, correct_labels='none')
+        plt.show()
+
