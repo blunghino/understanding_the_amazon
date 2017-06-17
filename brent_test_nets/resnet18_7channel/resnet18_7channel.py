@@ -36,26 +36,26 @@ if __name__ == '__main__':
     ############################### SETTINGS ###################################
     ## only need to change things in this part of the code
 
-    root = "resnet18_rgb" # name of model
+    root = "resnet18_7channel" # name of model
     save_model_path = "{}_state_dict.pkl".format(root)
     save_mat_path = "{}_training_data.mat".format(root)
     csv_path = '../../data/train_v2.csv'
-    img_path = '../../data/train-jpg'
-    img_ext = '.jpg'
+    img_path = '../../data/train_combo'
+    img_ext = '.npy'
     save_every = 5
     ## dataloader params
     batch_size = 256
-    use_fraction_of_data = 1. # 1 to train on full data set
+    use_fraction_of_data = 0.01 # 1 to train on full data set
     ## optimization hyperparams
     lr = 1e-3
-    num_epochs = 30
+    num_epochs = 50
     reg = 1e-3
     adaptive_lr_patience = 0 # scale lr after loss plateaus for "patience" epochs
     adaptive_lr_factor = 0.1 # scale lr by this factor
     ## whether to generate predictions on test
-    run_test = False
+    run_test = True
     test_csv_path = "../../data/sample_submission_v2.csv"
-    test_img_path = "../../data/test-jpg"
+    test_img_path = "../../data/test_combo"
     test_results_csv_path = "{}_results.csv".format(root)
     ############################################################################
 
@@ -67,12 +67,12 @@ if __name__ == '__main__':
         dtype = torch.FloatTensor
         num_workers = 4
 
-    JPG_RGB_MEAN = [0.68856319,  0.65945722,  0.70117001]
-    JPG_RGB_STD = [0.05338322,  0.04247037,  0.03543733]
+    NPY_7CHANNEL_MEAN = [0.68856319,  0.65945722,  0.70117001, 0, 0, 0, 0]
+    NPY_7CHANNEL_STD = [0.05338322,  0.04247037,  0.03543733, 1, 1, 1, 1]
 
-    dataset = ResnetTrainDataset(csv_path, img_path, dtype,
-                                 channel_means=JPG_RGB_MEAN,
-                                 channel_stds=JPG_RGB_STD)
+    dataset = ResnetTrainDataset(csv_path, img_path, dtype, img_ext=img_ext,
+                                 channel_means=NPY_7CHANNEL_MEAN,
+                                 channel_stds=NPY_7CHANNEL_STD)
 
     train_loader, val_loader = generate_train_val_dataloader(
         dataset,
@@ -85,7 +85,8 @@ if __name__ == '__main__':
     model = resnet18(pretrained=False)
     ## resize last fully connected layer to match our problem
     model.fc = nn.Linear(model.fc.in_features, 17)
-    # model.conv1 = nn.Conv2d(7, 64, kernel_size=7, stride=2, padding=3, bias=False)
+    ## resize the first conv layer to match our problem
+    model.conv1 = nn.Conv2d(7, 64, kernel_size=7, stride=2, padding=3, bias=False)
     model.type(dtype)
 
     sigmoid_threshold = 0.25
@@ -152,18 +153,13 @@ if __name__ == '__main__':
 
         print("running model on test set")
         test_dataset = ResnetTestDataset(test_csv_path, test_img_path, dtype,
-                                         channel_means=JPG_RGB_MEAN,
-                                         channel_stds=JPG_RGB_STD)
+                                         img_ext=img_ext,
+                                         channel_means=NPY_7CHANNEL_MEAN,
+                                         channel_stds=NPY_7CHANNEL_STD)
         test_loader = DataLoader(test_dataset, batch_size=batch_size,
                                  num_workers=num_workers)
         test_preds = test_model(model, test_loader, train_loader.dataset.mlb,
                                 dtype, sigmoid_threshold=sigmoid_threshold,
                                 out_file_name=test_results_csv_path)
         print("test set results saved as {}".format(os.path.abspath(test_results_csv_path)))
-    else:
-        plot_loader = DataLoader(dataset, num_workers=1, batch_size=1, shuffle=True)
-        fig_all = image_and_labels(model, plot_loader, dtype, correct_labels='all')
-        fig_some = image_and_labels(model, plot_loader, dtype, correct_labels='some')
-        fig_none = image_and_labels(model, plot_loader, dtype, correct_labels='none')
-        plt.show()
 

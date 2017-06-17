@@ -4,7 +4,7 @@ testing the basic setup of a model script using a model with two conv layers
 import sys
 import os.path
 
-from torchvision.models import resnet101
+# from torchvision.models import resnet101
 import torchvision.transforms as T
 import torch
 import torch.nn as nn
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     ## only need to change things in this part of the code
 
     root = "googlenet" # name of model
-    save_model_path = "{}_state_dict.pkl".format(root)
+    save_model_path = "{}_state_dict_".format(root)
     save_mat_path_fc = "{}_loss_and_acc_fc.mat".format(root)
     save_mat_path_tune = "{}_loss_and_acc_tune.mat".format(root)
     csv_path = '../../data/train_v2.csv'
@@ -50,8 +50,8 @@ if __name__ == '__main__':
     num_epochs_1 = 4
     reg_1 = 0
     lr_2 = 5e-5
-    num_epochs_2 = 16
-    reg_2 = 5e-4
+    num_epochs_2 = 22
+    reg_2 = 1e-3
     adaptive_lr_patience = 0 # scale lr after loss plateaus for "patience" epochs
     adaptive_lr_factor = 0.1 # scale lr by this factor
     ## whether to generate predictions on test
@@ -90,7 +90,7 @@ if __name__ == '__main__':
     ## googlenet
     model = GoogLeNet()
     ## resize last fully connected layer to match our problem
-    model.linear = nn.Linear(1024, 17)
+    # model.linear = nn.Linear(1024, 17)
     model.type(dtype)
 
     loss_fn = nn.MultiLabelSoftMarginLoss().type(dtype)
@@ -137,8 +137,8 @@ if __name__ == '__main__':
         print("fine tuning all layers:")
         for epoch in range(num_epochs_2):
             print("Begin epoch {}/{}".format(epoch+1, num_epochs_2))
-            epoch_losses, epoch_f2 = train_epoch(train_loader, model, loss_fn,
-                                                 optimizer_2, dtype, print_every=10)
+            epoch_losses, epoch_f2 = train_epoch(train_loader, model, loss_fn, optimizer_2, dtype, print_every=10)
+            print(epoch_losses, epoch_f2)
             scheduler_2.step(np.mean(epoch_losses), epoch)
             ## f2 score for validation dataset
             f2_acc = validate_epoch(model, val_loader, dtype)
@@ -146,9 +146,10 @@ if __name__ == '__main__':
             train_acc_history_2 += epoch_f2
             val_acc_history_2.append(f2_acc)
             loss_history_2 += epoch_losses
+            torch.save(model.state_dict(), save_model_path + str(epoch) + '.pkl')
             print("END epoch {}/{}: validation F2 score = {:.02f}".format(epoch+1, num_epochs_2, f2_acc))
         ## serialize model data and save as .pkl file
-        torch.save(model.state_dict(), save_model_path)
+        torch.save(model.state_dict(), save_model_path + '.pkl')
         print("model saved as {}".format(os.path.abspath(save_model_path)))
         ## save loss and accuracy as .mat file
         save_accuracy_and_loss_mat(save_mat_path_fc, train_acc_history_1,

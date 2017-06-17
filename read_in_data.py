@@ -25,12 +25,12 @@ class ResnetTrainDataset(Dataset):
     """
     class to load Amazon satellite data into pytorch for pretrained resnet
     """
-    def __init__(self, csv_path, img_path, dtype,
+    def __init__(self, csv_path, img_path, dtype, img_ext='.jpg',
                  channel_means=None, channel_stds=None):
 
         self.img_path = img_path
         self.dtype = dtype
-        self.img_ext = '.jpg'
+        self.img_ext = img_ext
 
         df = pd.read_csv(csv_path)
 
@@ -61,9 +61,13 @@ class ResnetTrainDataset(Dataset):
         img_str = self.X_train[index] + self.img_ext
         load_path = os.path.join(self.img_path, img_str)
 
-        img = Image.open(load_path)
-        img = img.convert('RGB')
-        img = self.transforms(img)
+        if self.img_ext == '.jpg':
+            img = Image.open(load_path)
+            img = img.convert('RGB')
+            img = self.transforms(img)
+
+        elif self.img_ext == '.npy':
+            img = np.load(load_path)
 
         label = torch.from_numpy(self.y_train[index]).type(self.dtype)
         return img, label
@@ -76,12 +80,12 @@ class ResnetTestDataset(Dataset):
     """
     class to load test data for Resnet into pytorch
     """
-    def __init__(self, csv_path, img_path, dtype,
+    def __init__(self, csv_path, img_path, dtype, img_ext='.jpg',
                  channel_means=None, channel_stds=None):
 
         self.img_path = img_path
         self.dtype = dtype
-        self.img_ext = '.jpg'
+        self.img_ext = img_ext
 
         df = pd.read_csv(csv_path)
 
@@ -109,11 +113,16 @@ class ResnetTestDataset(Dataset):
         """
         img_str = self.X_train[index] + self.img_ext
         load_path = os.path.join(self.img_path, img_str)
-        ## branching for different backends
-        img = Image.open(load_path)
-        img = img.convert('RGB')
 
-        img = self.transforms(img)
+        ## branching for different backends
+        if self.img_ext == '.jpg':
+            img = Image.open(load_path)
+            img = img.convert('RGB')
+            img = self.transforms(img)
+
+        elif self.img_ext == '.npy':
+            img = np.load(load_path)
+
         return img, self.X_train[index]
 
     def __len__(self):
@@ -124,12 +133,12 @@ class ResnetOptimizeDataset(ResnetTrainDataset):
     """
     class for optimizing weights and thresholds post training
     """
-    def __init__(self, csv_path, img_path, dtype,
+    def __init__(self, csv_path, img_path, dtype, img_ext='.jpg',
                  channel_means=None, channel_stds=None):
 
         self.img_path = img_path
         self.dtype = dtype
-        self.img_ext = '.jpg'
+        self.img_ext = img_ext
 
         df = pd.read_csv(csv_path)
 
