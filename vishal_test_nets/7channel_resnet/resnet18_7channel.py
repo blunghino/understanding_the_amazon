@@ -109,7 +109,7 @@ if __name__ == '__main__':
             epoch_losses, epoch_f2 = train_epoch(train_loader, model, loss_fn,
                                                  optimizer, dtype,
                                                  sigmoid_threshold=sigmoid_threshold,
-                                                 print_every=20)
+                                                 print_every=10)
             scheduler.step(np.mean(epoch_losses), epoch)
             ## f2 score for validation dataset
             f2_acc = validate_epoch(model, val_loader, dtype,
