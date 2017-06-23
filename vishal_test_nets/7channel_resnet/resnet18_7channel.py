@@ -86,7 +86,7 @@ if __name__ == '__main__':
     ## resize last fully connected layer to match our problem
     model.fc = nn.Linear(model.fc.in_features, 17)
     ## resize the first conv layer to match our problem
-    model.conv1 = nn.Conv2d(7, 64, kernel_size=7, stride=2, padding=3, bias=False)
+    model.conv1 = nn.Conv2d(4, 64, kernel_size=7, stride=2, padding=3, bias=False)
     model.type(dtype)
 
     sigmoid_threshold = 0.25
