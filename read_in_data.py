@@ -68,7 +68,7 @@ class ResnetTrainDataset(Dataset):
 
         elif self.img_ext == '.npy':
             img = np.load(load_path)
-            img=np.array(img,dtype=np.double)
+            #img=np.array(img,dtype=np.double)
 
         label = torch.from_numpy(self.y_train[index]).type(self.dtype)
         return img, label

@@ -44,7 +44,7 @@ if __name__ == '__main__':
     img_ext = '.npy'
     save_every = 5
     ## dataloader params
-    batch_size = 32
+    batch_size = 16
     use_fraction_of_data = 0.01 # 1 to train on full data set
     ## optimization hyperparams
     lr = 1e-3
