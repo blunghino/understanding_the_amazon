@@ -44,7 +44,7 @@ if __name__ == '__main__':
     img_ext = '.npy'
     save_every = 5
     ## dataloader params
-    batch_size = 256
+    batch_size = 32
     use_fraction_of_data = 0.01 # 1 to train on full data set
     ## optimization hyperparams
     lr = 1e-3
@@ -162,4 +162,3 @@ if __name__ == '__main__':
                                 dtype, sigmoid_threshold=sigmoid_threshold,
                                 out_file_name=test_results_csv_path)
         print("test set results saved as {}".format(os.path.abspath(test_results_csv_path)))
-
