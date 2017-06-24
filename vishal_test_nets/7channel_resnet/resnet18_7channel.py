@@ -44,8 +44,8 @@ if __name__ == '__main__':
     img_ext = '.npy'
     save_every = 5
     ## dataloader params
-    batch_size = 16
-    use_fraction_of_data = 0.01 # 1 to train on full data set
+    batch_size = 128
+    use_fraction_of_data = 1 # 1 to train on full data set
     ## optimization hyperparams
     lr = 1e-3
     num_epochs = 50
@@ -67,8 +67,10 @@ if __name__ == '__main__':
         dtype = torch.FloatTensor
         num_workers = 4
 
-    NPY_7CHANNEL_MEAN = [0.68856319,  0.65945722,  0.70117001, 0, 0, 0, 0]
-    NPY_7CHANNEL_STD = [0.05338322,  0.04247037,  0.03543733, 1, 1, 1, 1]
+    NPY_7CHANNEL_MEAN = [0.68856319,  0.65945722,  0.70117001, 0.07612355,
+                         0.06516739, 0.04691964, 0.09764017]
+    NPY_7CHANNEL_STD = [0.05338322,  0.04247037,  0.03543733, 0.00608935,
+                        0.00623353, 0.00691525, 0.01309933]
 
     dataset = ResnetTrainDataset(csv_path, img_path, dtype, img_ext=img_ext,
                                  channel_means=NPY_7CHANNEL_MEAN,
