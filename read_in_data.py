@@ -124,6 +124,8 @@ class ResnetTestDataset(Dataset):
 
         elif self.img_ext == '.npy':
             img = np.load(load_path)
+            img=np.array(img,dtype=np.int32)
+            img=img.reshape((7,256,256))
 
         return img, self.X_train[index]
 
