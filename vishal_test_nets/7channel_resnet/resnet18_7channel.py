@@ -92,6 +92,7 @@ if __name__ == '__main__':
     model.type(dtype)
     model1=torch.load("resnet18_7channel_state_dict_epoch-35.pkl")
     model.load_state_dict(model1)
+    model.type(dtype)
     sigmoid_threshold = 0.25
     loss_fn = nn.MultiLabelSoftMarginLoss().type(dtype)
 
