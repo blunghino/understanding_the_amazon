@@ -90,8 +90,8 @@ if __name__ == '__main__':
     ## resize the first conv layer to match our problem
     model.conv1 = nn.Conv2d(7, 64, kernel_size=7, stride=2, padding=3, bias=False)
     model.type(dtype)
-    model=torch.load("resnet18_7channel_state_dict_epoch-35.pkl")
-    
+    model1=torch.load("resnet18_7channel_state_dict_epoch-35.pkl")
+    model.load_state_dict(model1)
     sigmoid_threshold = 0.25
     loss_fn = nn.MultiLabelSoftMarginLoss().type(dtype)
 
