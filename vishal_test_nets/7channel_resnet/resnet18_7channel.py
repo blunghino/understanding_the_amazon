@@ -48,7 +48,7 @@ if __name__ == '__main__':
     use_fraction_of_data = 1 # 1 to train on full data set
     ## optimization hyperparams
     lr = 1e-3
-    num_epochs = 50
+    num_epochs = 20
     reg = 1e-3
     adaptive_lr_patience = 0 # scale lr after loss plateaus for "patience" epochs
     adaptive_lr_factor = 0.1 # scale lr by this factor
@@ -90,7 +90,8 @@ if __name__ == '__main__':
     ## resize the first conv layer to match our problem
     model.conv1 = nn.Conv2d(7, 64, kernel_size=7, stride=2, padding=3, bias=False)
     model.type(dtype)
-
+    model=torch.load("resnet18_7channel_state_dict_epoch-35.pkl")
+    model.type(dtype)
     sigmoid_threshold = 0.25
     loss_fn = nn.MultiLabelSoftMarginLoss().type(dtype)
 
