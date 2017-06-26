@@ -91,7 +91,7 @@ if __name__ == '__main__':
     model.conv1 = nn.Conv2d(7, 64, kernel_size=7, stride=2, padding=3, bias=False)
     model.type(dtype)
     model=torch.load("resnet18_7channel_state_dict_epoch-35.pkl")
-    model.type(dtype)
+    
     sigmoid_threshold = 0.25
     loss_fn = nn.MultiLabelSoftMarginLoss().type(dtype)
 
