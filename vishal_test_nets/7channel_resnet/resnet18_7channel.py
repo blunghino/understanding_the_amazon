@@ -37,7 +37,7 @@ if __name__ == '__main__':
     ## only need to change things in this part of the code
 
     root = "resnet18_7channel" # name of model
-    save_model_path = "{}_state_dict.pkl".format(root)
+    save_model_path = "{}_state_dict_epoch-30.pkl".format(root)
     save_mat_path = "{}_training_data.mat".format(root)
     csv_path = '../../data/train_v2.csv'
     img_path = '../../data/train_combo'
